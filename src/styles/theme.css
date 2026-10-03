@@ -1,0 +1,42 @@
+/* PlanPilot / Perpetuity v1. Sole source of raw color and design tokens. See DESIGN_SYSTEM.md. */
+:root {
+  --background: #e8f0f0;
+  --foreground: #0a4a55;
+  --card: #f2f7f7;
+  --card-foreground: #0a4a55;
+  --popover: #f2f7f7;
+  --popover-foreground: #0a4a55;
+  --primary: #06858e;
+  --primary-foreground: #ffffff;
+  --secondary: #d9eaea;
+  --secondary-foreground: #0a4a55;
+  --muted: #e0eaea;
+  --muted-foreground: #427a7e;
+  --accent: #c9e5e7;
+  --accent-foreground: #0a4a55;
+  --destructive: #d13838;
+  --border: #cde0e2;
+  --input: #d9eaea;
+  --ring: #06858e;
+  --chart-1: #06858e;
+  --chart-2: #1e9ea6;
+  --chart-3: #37b6be;
+  --chart-4: #5dc7ce;
+  --chart-5: #8ad8dd;
+  --sidebar: #daebed;
+  --sidebar-foreground: #0a4a55;
+  --radius: 0.125rem;
+}
+:root {
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--accent);
+  --sidebar-accent-foreground: var(--accent-foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
+  --destructive-foreground: #ffffff;
+  --pp-shadow-control: 1px 1px 2px
+    color-mix(in srgb, var(--primary) 15%, transparent);
+  --pp-shadow-preview: 8px 12px 0
+    color-mix(in srgb, var(--secondary) 50%, transparent);
+}

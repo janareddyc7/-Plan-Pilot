@@ -1,10 +1,8 @@
 "use client";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 export function SignOut() {
-  const router = useRouter();
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
   return (
@@ -17,8 +15,9 @@ export function SignOut() {
           try {
             const { error } = await createClient().auth.signOut();
             if (error) throw error;
-            router.replace("/");
-            router.refresh();
+            // A full navigation clears cached protected pages after cookie removal.
+            // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+            window.location.assign("/");
           } catch {
             setError("Unable to sign out. Please retry.");
             setPending(false);

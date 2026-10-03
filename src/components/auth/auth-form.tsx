@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { safeNext } from "@/lib/auth/redirect";
 import {
   ArrowRight,
   Eye,
@@ -32,11 +32,21 @@ export function AuthForm({
   configured: boolean;
   next?: string;
 }) {
-  const router = useRouter();
   const [message, setMessage] = useState("");
   const [failed, setFailed] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [resending, setResending] = useState(false);
+  async function openWorkspace(destination: string) {
+    const response = await fetch("/api/auth/session", { cache: "no-store" });
+    if (!response.ok) {
+      throw new Error(
+        response.status === 503
+          ? "You signed in, but this server cannot reach Supabase. Retry when the local server has network access."
+          : "Your session could not be verified. Allow cookies for this site and sign in again.",
+      );
+    }
+    window.location.assign(safeNext(destination));
+  }
   const {
     register,
     handleSubmit,
@@ -77,8 +87,7 @@ export function AuthForm({
       if (mode === "sign-in") {
         const { error } = await supabase.auth.signInWithPassword(values);
         if (error) throw error;
-        router.replace(next);
-        router.refresh();
+        await openWorkspace(next);
       }
       if (mode === "sign-up") {
         const { data, error } = await supabase.auth.signUp({
@@ -88,8 +97,7 @@ export function AuthForm({
         });
         if (error) throw error;
         if (data.session) {
-          router.replace("/app");
-          router.refresh();
+          await openWorkspace("/app");
         } else
           setMessage(
             "Check your email to confirm your account. Open the link in this same browser, then sign in.",
@@ -119,14 +127,18 @@ export function AuthForm({
           ? String(error.code)
           : "";
       setMessage(
-        code === "over_email_send_rate_limit" ||
-          code === "over_request_rate_limit"
-          ? "Too many requests. Please wait a few minutes before trying again."
-          : code === "email_not_confirmed"
-            ? "Please confirm your email using the link in your inbox, then sign in."
-            : mode === "sign-in"
-              ? "Unable to sign in. Check your details and confirm your email, then try again."
-              : "We couldn’t complete that request. Try again or request a new email link.",
+        error instanceof Error &&
+          (error.message.startsWith("You signed in") ||
+            error.message.startsWith("Your session"))
+          ? error.message
+          : code === "over_email_send_rate_limit" ||
+              code === "over_request_rate_limit"
+            ? "Too many requests. Please wait a few minutes before trying again."
+            : code === "email_not_confirmed"
+              ? "Please confirm your email using the link in your inbox, then sign in."
+              : mode === "sign-in"
+                ? "Unable to sign in. Check your details and confirm your email, then try again."
+                : "We couldn’t complete that request. Try again or request a new email link.",
       );
     }
   });
@@ -137,7 +149,7 @@ export function AuthForm({
           ? "Let’s get you started"
           : "Your PlanPilot account"}
       </p>
-      <h1 className="mt-3 text-[38px] font-medium leading-tight tracking-[-.055em]">
+      <h1 className="mt-2 font-serif text-3xl font-normal leading-tight tracking-tight">
         {titles[mode]}
       </h1>
       <p className="mt-3 text-sm leading-6 text-muted-foreground">
@@ -158,7 +170,7 @@ export function AuthForm({
           explore the public preview now.
         </p>
       )}
-      <form onSubmit={submit} className="mt-8 space-y-5" noValidate>
+      <form onSubmit={submit} className="mt-6 space-y-4" noValidate>
         {mode !== "reset-password" && (
           <div>
             <label htmlFor="email" className="text-sm font-medium">
@@ -222,7 +234,7 @@ export function AuthForm({
                 aria-label={showPassword ? "Hide password" : "Show password"}
                 aria-pressed={showPassword}
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-1 top-3 flex h-11 w-11 items-center justify-center rounded-sm text-muted-foreground hover:text-primary"
+                className="absolute right-1 top-2 flex h-10 w-10 items-center justify-center rounded-sm text-muted-foreground hover:text-primary"
               >
                 {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
               </button>
@@ -241,7 +253,7 @@ export function AuthForm({
           </div>
         )}
         <Button
-          className="mt-2 min-h-12 w-full"
+          className="mt-2 min-h-10 w-full"
           disabled={!configured || isSubmitting || resending}
           type="submit"
         >

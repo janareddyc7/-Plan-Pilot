@@ -1,6 +1,6 @@
 # PlanPilot
 
-The AI flight simulator for your dental benefits. This repository currently delivers the **team starter scaffold**: home page, auth flows, protected workspace shells, shared schemas and Supabase foundations. See docs/STATUS.md for the exact implemented scope. The simulator and financial engine are future work.
+Dental benefits planning with a working synthetic simulator, claim receipts, schedule comparisons, Supabase authentication, and the shared Vintage Paper theme. See docs/STATUS.md for current scope and limitations. Plan persistence and upload APIs remain placeholders.
 
 ## Local setup
 
@@ -91,7 +91,7 @@ The scaffold intentionally contains no real patient data, external AI keys, hard
 
 The local project is connected through ignored .env.local. Read-only Supabase checks confirmed email signup and email confirmation are enabled, and all five tables exist with anonymous reads denied. No service-role credential is used. Teammates must create their own .env.local from .env.example; local credentials are not committed. The user reported the migration succeeded. Account creation, confirmation/recovery delivery and authenticated two-user database isolation remain manual acceptance checks.
 
-The visual direction is now the user's selected Perpetuity palette from tweakcn, with Geist body/headings and Courier New accents. Home and auth pages share the same semantic tokens. The simulator and persistence CRUD remain the next milestone.
+The visual direction is the user's selected Vintage Paper palette from tweakcn, with compact Geist body text and restrained serif headings. DESIGN_SYSTEM.md is authoritative. Home, auth, dashboard, and receipts share src/styles/theme.css.
 
 ### Email-link troubleshooting
 

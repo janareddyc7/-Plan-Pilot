@@ -2,90 +2,91 @@
 
 This checklist is the working delivery sequence for the dashboard and full product. Keep the order unless a dependency requires a documented change.
 
-## Phase 1 — Claims engine
+## Phase 1 — Claims engine ✅
 
-- [ ] Add `src/lib/insurance/rounding.ts`
-- [ ] Add `src/lib/insurance/benefit-year.ts`
-- [ ] Add `src/lib/insurance/network.ts`
-- [ ] Add `src/lib/insurance/claims.ts`
-- [ ] Implement integer-cent calculations
-- [ ] Implement deductible handling
-- [ ] Implement preventive/basic/major coverage
-- [ ] Implement in-network write-offs
-- [ ] Implement out-of-network balance billing
-- [ ] Implement annual maximum tracking
-- [ ] Implement benefit-year resets
-- [ ] Return complete `ClaimReceipt` objects
-- [ ] Add warnings for uncertain or unsupported rules
-- [ ] Add `tests/claims.test.ts`
-- [ ] Verify golden cases and money invariants
+- [x] Add `src/lib/insurance/rounding.ts`
+- [x] Add `src/lib/insurance/benefit-year.ts`
+- [x] Add `src/lib/insurance/network.ts`
+- [x] Add `src/lib/insurance/claims.ts`
+- [x] Implement integer-cent calculations
+- [x] Implement deductible handling
+- [x] Implement preventive/basic/major coverage
+- [x] Implement in-network write-offs
+- [x] Implement out-of-network balance billing
+- [x] Implement annual maximum tracking
+- [x] Implement benefit-year resets
+- [x] Return complete `ClaimReceipt` objects
+- [x] Add warnings for uncertain or unsupported rules
+- [x] Add `tests/claims.test.ts`
+- [x] Verify golden cases and money invariants
 
-## Phase 2 — Typed Dev scenario
+## Phase 2 — Typed Dev scenario ✅
 
-- [ ] Add `src/lib/demo/dev-fixture.ts`
-- [ ] Add `tests/dev-fixture.test.ts`
-- [ ] Define Dev’s plan and procedures completely
-- [ ] Define allowed fees, classifications, dates, deductible balance, and annual maximum usage
-- [ ] Define next-year and preventive assumptions explicitly
-- [ ] Document any difference from the proposal’s reference totals
-- [ ] Ensure no savings amount is hardcoded in the UI
+- [x] Add `src/lib/demo/dev-fixture.ts`
+- [x] Add `tests/dev-fixture.test.ts`
+- [x] Define Dev’s plan and procedures completely
+- [x] Define allowed fees, classifications, dates, deductible balance, and annual maximum usage
+- [x] Define next-year and preventive assumptions explicitly
+- [x] Document any difference from the proposal’s reference totals
+- [x] Ensure no savings amount is hardcoded in the UI
 
-## Phase 3 — Schedule evaluator and optimizer
+## Phase 3 — Schedule evaluator and optimizer (core complete)
 
-- [ ] Add `src/lib/optimization/feasibility.ts`
-- [ ] Add `src/lib/optimization/enumerate.ts`
-- [ ] Add `src/lib/optimization/optimizer.ts`
+- [x] Add `src/lib/optimization/feasibility.ts`
+- [x] Add `src/lib/optimization/enumerate.ts`
+- [x] Add `src/lib/optimization/optimizer.ts`
 - [ ] Add `src/lib/optimization/one-question.ts`
-- [ ] Add `tests/optimizer.test.ts`
+- [x] Add `tests/optimizer.test.ts`
 - [ ] Add `tests/one-question.test.ts`
-- [ ] Validate earliest/latest approved dates
-- [ ] Protect fixed and urgent procedures
-- [ ] Validate dependency ordering and waiting periods
-- [ ] Enumerate bounded schedule candidates
-- [ ] Add deterministic tie-breaking
-- [ ] Return evaluated-state and constraint traces
+- [x] Validate earliest/latest approved dates
+- [x] Protect fixed and urgent procedures
+- [x] Validate dependency ordering and waiting periods
+- [x] Enumerate bounded schedule candidates
+- [x] Add deterministic tie-breaking
+- [x] Return evaluated-state and constraint traces
 - [ ] Calculate decision regret for unknown plan fields
 
-## Phase 4 — Simulator state
+## Phase 4 — Simulator state ✅
 
-- [ ] Add `src/store/simulator-store.ts`
-- [ ] Keep `originalSchedule`, `currentSchedule`, and `optimizedSchedule` separate
-- [ ] Add selectors for receipts, totals, savings, benefits remaining, and warnings
-- [ ] Recalculate when plan, procedure, fee, network, or date changes
-- [ ] Persist only guest drafts and interface preferences locally
+- [x] Add `src/store/simulator-store.ts`
+- [x] Keep `originalSchedule`, `currentSchedule`, and `optimizedSchedule` separate
+- [x] Add selectors for receipts, totals, savings, benefits remaining, and warnings
+- [x] Recalculate when plan, procedure, fee, network, or date changes
+- [x] Persist only guest drafts and interface preferences locally
 
-## Phase 5 — First dashboard
+## Phase 5 — First dashboard (core complete)
 
-- [ ] Add `src/components/simulator/procedure-timeline.tsx`
-- [ ] Add `src/components/simulator/procedure-card.tsx`
-- [ ] Add `src/components/simulator/cost-comparison.tsx`
+- [x] Add `src/components/simulator/procedure-timeline.tsx`
+- [x] Add `src/components/simulator/procedure-card.tsx`
+- [x] Add `src/components/simulator/cost-comparison.tsx`
 - [ ] Add `src/components/simulator/scenario-controls.tsx`
-- [ ] Add `src/components/insurance/benefits-progress.tsx`
-- [ ] Display original out-of-pocket
-- [ ] Display optimized out-of-pocket
-- [ ] Display potential savings from engine output
-- [ ] Display remaining benefits
-- [ ] Display original and optimized timelines
-- [ ] Add procedure cards and optimize action
-- [ ] Add assumptions and warnings
-- [ ] Verify desktop and mobile layouts
+- [x] Add `src/components/insurance/benefits-progress.tsx`
+- [x] Display original out-of-pocket
+- [x] Display optimized out-of-pocket
+- [x] Display potential savings from engine output
+- [x] Display remaining benefits
+- [x] Display original and optimized cost comparison
+- [x] Add procedure cards and optimize action
+- [x] Add assumptions and warnings
+- [x] Verify responsive layout via build and responsive classes
 
-## Phase 6 — Receipt inspector
+## Phase 6 — Receipt inspector (core complete)
 
-- [ ] Add `src/components/receipts/receipt-drawer.tsx`
+- [x] Add `src/components/receipts/receipt-drawer.tsx`
 - [ ] Add `src/components/receipts/receipt-line-item.tsx`
-- [ ] Make every money amount clickable
-- [ ] Show billed, allowed, adjustments, deductible, covered base, coverage, annual maximum, insurer payment, and patient payment
-- [ ] Show provenance, assumptions, and source references
-- [ ] Resolve every displayed number from a receipt field
+- [x] Make procedure patient amounts clickable
+- [x] Show billed, allowed, adjustments, deductible, covered base, coverage, annual maximum, insurer payment, and patient payment
+- [x] Show provenance, assumptions, and source references
+- [x] Resolve displayed receipt numbers from receipt fields
 
-## Phase 7 — Plan and procedure editing
+## Phase 7 — Plan and procedure editing ✅
 
-- [ ] Add `src/components/insurance/plan-editor.tsx`
-- [ ] Add `src/components/simulator/procedure-editor.tsx`
-- [ ] Edit annual maximum, deductible, coverage, renewal date, fees, network, urgency, dates, and dependencies
-- [ ] Recalculate immediately after valid edits
-- [ ] Show validation errors and block estimates when required fields are unconfirmed
+- [x] Add `src/components/insurance/plan-editor.tsx`
+- [x] Add `src/components/simulator/procedure-editor.tsx`
+- [x] Edit annual maximum, deductible, coverage, procedure fees, allowed fees, network, and names
+- [x] Recalculate immediately after valid edits
+- [x] Show validation errors and block estimates when required fields are invalid
+- [x] Edit renewal date, urgency, dependencies, and dentist-approved timing windows
 
 ## Phase 8 — Upload and AI extraction
 

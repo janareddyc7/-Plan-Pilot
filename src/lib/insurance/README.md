@@ -1,1 +1,1 @@
-Reserved for the pure integer-cent claims engine, benefit-year and network rules. Use ../schemas. No implementation exists yet. Add golden cases before integration.
+Pure integer-cent claims engine. `calculateClaims` is deterministic and returns validated `ClaimReceipt` objects, totals, remaining annual maximum by benefit year, and explicit warnings for provisional assumptions. Keep all money as integer cents and add golden cases before changing rules.

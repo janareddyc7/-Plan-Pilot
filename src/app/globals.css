@@ -37,6 +37,7 @@
   --shadow-preview: var(--pp-shadow-preview);
   --font-sans: var(--font-geist-sans);
   --font-mono: "Courier New", monospace;
+  --font-serif: Georgia, "Times New Roman", serif;
   --radius-sm: var(--radius);
   --radius-md: calc(var(--radius) + 2px);
   --radius-lg: calc(var(--radius) + 4px);
@@ -73,9 +74,9 @@ input {
   border: 1px solid var(--border);
   border-radius: 4px;
   background: var(--card);
-  padding: 14px 16px;
+  padding: 10px 12px;
   margin-top: 8px;
-  font-size: 14px;
+  font-size: 13px;
 }
 input::placeholder {
   color: var(--muted-foreground);

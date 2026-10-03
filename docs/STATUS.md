@@ -1,11 +1,34 @@
-# Current milestone: application scaffold
+# Current implementation
 
-Implemented: Next.js foundation, responsive home page, public workspace preview, sign-in/sign-up/recovery/reset forms, sign-out, email callback and token confirmation routes, session proxy, protected workspace shells, guarded placeholder APIs, shared Zod contracts, initial Supabase migration/private storage policies, contract tests and team documentation.
+The user expanded the original scaffold milestone to the synthetic simulator and dashboard.
 
-Not implemented in this milestone: claims engine, optimizer, synthetic interactive Dev scenario, plan/procedure editor, PDF parsing/upload UI, AI calls, live receipt/explanation UI, save/restore CRUD, charts, drag/drop, billing, OAuth provider buttons, deployment. The /demo route is explicitly a workspace preview, not the finished master-spec demo.
+Implemented:
+- Shared schemas, Supabase auth, email callbacks, guarded routes, migrations.
+- Synthetic Dev plan, claims calculation, bounded candidate schedule comparison.
+- Date editing with feasibility errors, current/recommended views, apply/reset.
+- Procedure receipts in a keyboard-accessible modal.
+- Compact Vintage Paper theme on home, auth and workspace.
 
-Connected Supabase on October 3, 2026 using the user's project URL and publishable key in ignored .env.local. Read-only checks verified email signup enabled, confirmation required, and all five tables present with anonymous reads denied. User reported successfully applying the migration. Auth with a real account, two-user RLS isolation, private storage access and recovery email delivery still need end-to-end verification; public-key checks cannot inspect dashboard redirect settings or all policies.
+Auth repair: the previous local dev process ran without outbound network access,
+preventing Supabase session verification. Restarted with network permission and
+verified the existing browser session redirects from /sign-in?next=%2Fapp to /app.
+Password sign-in now checks the cookie session through /api/auth/session before
+a full navigation. Removed the browser getSession redirect loop. This endpoint
+returns 503 for Supabase connectivity errors rather than implying bad credentials.
+Do not disable verification to work around an offline server.
 
-The user subsequently selected tweakcn Perpetuity as the new visual direction. Home and all auth pages now use its light palette, fine borders, and monospace accents, with Geist retained for primary reading/headings. This explicit preference supersedes the master spec's original palette. Account forms include password visibility, loading, validation, success and rate-limit states.
+Still incomplete:
+- Uploaded PDF processing, AI extraction and explanation.
+- Account plan/procedure/scenario CRUD (API placeholders remain).
+- Full optimizer search, uncertainty/regret analysis, comprehensive edge cases.
+- Guest draft persistence and full plan/procedure editing.
+- Aggregate financial amount inspection (procedure receipts are inspectable).
+- New signup, confirmation email and password recovery delivery acceptance tests.
 
-Next milestone should freeze shared schemas with the engine teammate and implement golden claim tests before displaying financial results.
+The signed-in dashboard currently uses the labeled synthetic sample; it does not
+claim to load a user's saved insurance plan.
+
+Verification this iteration: existing signed-in redirect in the in-app browser;
+comparison and receipt open/Escape in Chrome; mobile dashboard/auth layout;
+production compilation; tests for corrected deductible, cap and preventive
+accounting; server-session response tests.

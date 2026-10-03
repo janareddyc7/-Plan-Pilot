@@ -2,7 +2,7 @@
 
 Next.js App Router, React, strict TypeScript and Tailwind v4 form one application. Geist fonts are installed locally through the geist package. UI foundations use the shadcn new-york convention, Radix Slot and lucide-react. Forms use React Hook Form with shared Zod validation. The lockfile pins the resolved dependency graph.
 
-Current design override (user request, October 3): Perpetuity light theme from https://tweakcn.com/editor/theme?theme=perpetuity. Tokens are in src/app/globals.css; use semantic colors instead of hardcoded white surfaces. Original palette source: https://github.com/jnsahaj/tweakcn/blob/main/utils/theme-presets.ts. Geist is retained for readable editorial headings/body; Courier New follows the theme for small labels and monospace details. This is a palette-based adaptation, not the preset's all-monospace typography.
+Current design override: Vintage Paper from tweakcn. Tokens live in src/styles/theme.css, mapped by globals.css. Source: https://github.com/jnsahaj/tweakcn/blob/main/utils/theme-presets.ts. Geist body text and Georgia editorial headings adapt the preset for compact application screens. DESIGN_SYSTEM.md is the current visual contract.
 
 ## Boundaries
 

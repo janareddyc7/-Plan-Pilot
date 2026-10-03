@@ -8,6 +8,8 @@ Implemented:
 - Date editing with feasibility errors, current/recommended views, apply/reset.
 - Procedure receipts in a keyboard-accessible modal.
 - Compact Vintage Paper theme on home, auth and workspace.
+- Phase 8 private PDF upload, selectable-text extraction, Gemini candidate fields,
+  verified page quotes, and explicit plan confirmation before calculations.
 
 Auth repair: the previous local dev process ran without outbound network access,
 preventing Supabase session verification. Restarted with network permission and
@@ -18,7 +20,7 @@ returns 503 for Supabase connectivity errors rather than implying bad credential
 Do not disable verification to work around an offline server.
 
 Still incomplete:
-- Uploaded PDF processing, AI extraction and explanation.
+- Phase 9 One Smart Question and receipt-referenced explanations.
 - Account plan/procedure/scenario CRUD (API placeholders remain).
 - Full optimizer search, uncertainty/regret analysis, comprehensive edge cases.
 - Guest draft persistence and full plan/procedure editing.
@@ -31,4 +33,5 @@ claim to load a user's saved insurance plan.
 Verification this iteration: existing signed-in redirect in the in-app browser;
 comparison and receipt open/Escape in Chrome; mobile dashboard/auth layout;
 production compilation; tests for corrected deductible, cap and preventive
-accounting; server-session response tests.
+accounting; server-session response tests; Phase 8 extraction routes and
+confirmation UI compile and lint. Live Gemini extraction still requires a key.

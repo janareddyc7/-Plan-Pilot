@@ -1,1 +1,8 @@
-Reserved for server-only AI SDK provider and structured extraction/explanation. Pick one provider when implementing. Documents are untrusted; confirm all candidate fields before calculations.
+PlanPilot uses the Vercel AI SDK with the Google Gemini provider on the server only.
+
+- `extract.ts` asks Gemini for candidate plan fields using a Zod schema.
+- Monetary values are transcribed as printed dollar strings and converted to cents by deterministic code only.
+- Source quotes are retained only when they can be verified against the extracted page text.
+- PDFs are untrusted data. The model is instructed to ignore embedded instructions.
+- Results always return `isConfirmed: false`; the user must review the draft before it reaches the claims engine.
+- Missing `GEMINI_API_KEY` is an honest manual-entry fallback, not a fake AI response.

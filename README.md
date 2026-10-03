@@ -1,6 +1,6 @@
 # PlanPilot
 
-Dental benefits planning with a working synthetic simulator, claim receipts, schedule comparisons, Supabase authentication, and the shared Vintage Paper theme. See docs/STATUS.md for current scope and limitations. Plan persistence and upload APIs remain placeholders.
+Dental benefits planning with a working synthetic simulator, claim receipts, schedule comparisons, Supabase authentication, private PDF upload, Gemini-assisted plan extraction, and the shared Vintage Paper theme. See docs/STATUS.md for current scope and limitations.
 
 ## Local setup
 
@@ -22,9 +22,11 @@ On PowerShell, use `Copy-Item .env.example .env.local`. Open http://localhost:30
 NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=YOUR_PUBLIC_KEY
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
+GEMINI_API_KEY=YOUR_GOOGLE_AI_STUDIO_KEY
+GEMINI_MODEL=gemini-2.5-flash-lite
 ```
 
-No service-role key is needed. Public environment variables are bundled at build time; restart the dev server or redeploy after changing them. NEXT_PUBLIC_SITE_URL documents the canonical site URL for your project configuration; browser-initiated auth uses the current origin.
+No service-role key is needed. `GEMINI_API_KEY` is server-only: never prefix it with `NEXT_PUBLIC_` or commit it. Public environment variables are bundled at build time; restart the dev server or redeploy after changing them. `NEXT_PUBLIC_SITE_URL` documents the canonical site URL for your project configuration; browser-initiated auth uses the current origin.
 
 2. Run supabase/migrations/202610030001_initial.sql once in Supabase SQL Editor. Alternatively, with Supabase CLI installed:
 
@@ -42,7 +44,9 @@ supabase db push
 5. Configure SMTP for production email delivery. Match the Supabase minimum password length to the UI's 12 characters.
 6. Restart the app. Sign up, confirm email, sign in, open /app/settings, sign out, and test forgot-password → email → reset → sign in with the new password.
 
-Private PDFs will use `plan-documents/<user-id>/<document-id>.pdf` (the bucket is plan-documents; the object path starts with user ID). The migration allows only PDFs up to 10 MiB. No upload UI is built yet. Create signed URLs only after authorization; never use public URLs.
+Private PDFs use `plan-documents/<user-id>/<document-id>-<filename>.pdf` (the object path starts with the authenticated user ID). The migration allows only PDFs up to 10 MiB. Text-based PDFs are parsed with PDF.js, then Gemini returns a Zod-validated, unconfirmed candidate with confidence and verified page quotes. Scanned PDFs and missing Gemini credentials fall back to manual entry. A user must confirm fields before the claims engine can use them. Create signed URLs only after authorization; never use public URLs.
+
+For local AI extraction, create a Google AI Studio API key and add `GEMINI_API_KEY` to `.env.local`. The application never logs uploaded PDF text, sends monetary calculations to Gemini, or exposes the key in browser code.
 
 ## Routes
 
@@ -54,13 +58,16 @@ Private PDFs will use `plan-documents/<user-id>/<document-id>.pdf` (the bucket i
 | /forgot-password, /reset-password | Recovery request and authenticated password update |
 | /auth/callback, /auth/confirm | PKCE and token-hash email callbacks |
 | /app | Protected dashboard shell |
-| /app/plans, /app/scenarios | Protected feature empty states |
+| /app/plans | Protected plan editor, private PDF upload, and extraction review |
+| /app/scenarios | Protected feature empty state |
 | /app/scenarios/[id] | Reserved; returns not found until retrieval is implemented |
 | /app/settings | Account email and recovery link |
 | /api/plans, /api/scenarios | GET/POST guarded placeholders |
-| /api/ai/extract-plan, /api/ai/explain | POST guarded placeholders |
+| /api/documents/upload | Authenticated private PDF upload and extraction |
+| /api/ai/extract-plan | Authenticated Gemini extraction from a stored document or supplied text |
+| /api/ai/explain | Reserved for Phase 9 receipt explanation |
 
-API status codes: 503 when Supabase is absent; 401 for unauthenticated callers; 501 for an authenticated request to the not-yet-implemented feature. Placeholder APIs do not accept or store documents.
+API status codes: 503 when Supabase or Gemini is absent; 401 for unauthenticated callers; 422 when a document cannot be safely extracted. The upload route stores PDFs only in the private, owner-scoped bucket.
 
 ## Team handoff
 
@@ -77,7 +84,7 @@ npm run test
 npm run build
 ```
 
-Verified on October 3, 2026: dependency installation, typecheck, lint (zero warnings), all 5 Vitest tests, and production build passed. The production server was started locally and the public home page was checked in the browser.
+Verified on October 3, 2026: dependency installation, typecheck, lint (zero warnings), all 20 Vitest tests, and production build passed. The public home page, authenticated plans editor, and extraction-review UI were checked in the browser. Live Gemini extraction requires a configured key.
 
 Tests cover money/schema boundaries and redirect validation. Live auth, recovery email, database migration and two-account RLS/storage verification require a configured Supabase project. Check that account A cannot read/update account B's rows, reference B's documents/plans, or read B's storage paths before releasing persistence features.
 
@@ -85,7 +92,7 @@ Tests cover money/schema boundaries and redirect validation. Live auth, recovery
 
 Import this Git repository in Vercel with the Next.js preset. Add the public Supabase variables and canonical site URL; apply the migration and configure Supabase production Site URL/redirect allowlist/email templates. Run a production build and the auth smoke test. No deployment has been performed by the scaffold.
 
-The scaffold intentionally contains no real patient data, external AI keys, hardcoded financial outputs or claimed insurance savings.
+The repository contains no real patient data or external AI keys. Financial outputs remain deterministic engine results; Gemini only proposes document fields and prose-free structured data.
 
 ## Current connection and theme
 

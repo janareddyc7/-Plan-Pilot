@@ -90,17 +90,17 @@ This checklist is the working delivery sequence for the dashboard and full produ
 
 ## Phase 8 — Upload and AI extraction
 
-- [ ] Add `src/components/insurance/plan-upload.tsx`
-- [ ] Add `src/components/ai/plan-extraction-review.tsx`
-- [ ] Add `src/lib/documents/pdf-text.ts`
-- [ ] Add `src/lib/ai/extract.ts`
-- [ ] Add `src/app/api/documents/upload/route.ts`
-- [ ] Implement private Supabase Storage upload
-- [ ] Extract text from text-based PDFs
-- [ ] Fall back to manual entry for scanned PDFs
-- [ ] Return structured candidate fields with confidence, quotes, and pages
-- [ ] Require user confirmation before calculations
-- [ ] Keep AI arithmetic disabled
+- [x] Add `src/components/insurance/plan-upload.tsx`
+- [x] Add `src/components/ai/plan-extraction-review.tsx`
+- [x] Add `src/lib/documents/pdf-text.ts`
+- [x] Add `src/lib/ai/extract.ts`
+- [x] Add `src/app/api/documents/upload/route.ts`
+- [x] Implement private Supabase Storage upload
+- [x] Extract text from text-based PDFs
+- [x] Fall back to manual entry for scanned PDFs
+- [x] Return structured candidate fields with confidence, quotes, and pages
+- [x] Require user confirmation before calculations
+- [x] Keep AI arithmetic disabled
 
 ## Phase 9 — One Smart Question and explanations
 

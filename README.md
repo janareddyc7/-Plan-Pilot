@@ -111,15 +111,6 @@ supabase/migrations/     Owner-scoped schema, RLS, and private storage rules
 tests/                   Vitest coverage for core behavior
 ```
 
-## Safety and Current Limits
-
-- Estimates depend on user-confirmed plan rules and user-supplied dentist quotes or allowed amounts. For a few common CDT codes, a typed illustrative 2026 national benchmark is available as a clearly labeled fallback. It is not FAIR Health, a carrier rate, a live network feed, or a final price.
-- A user must confirm extracted plan fields before the claims engine uses them. Uploaded PDF text is treated as untrusted data and is never executed.
-- AI has no write access and does not calculate money or select clinical timing.
-- The current contract targets PPO plans. Unsupported plan rules must remain explicit assumptions rather than silently guessed behavior.
-- The app has no appointment booking, insurer claim submission, live insurer pricing/network integration, or outbound reminder delivery.
-- A live release still needs configured Supabase acceptance testing with two accounts to confirm database and storage isolation end to end.
-
 ## Deployment
 
 Deploy with the Next.js preset, then configure the public Supabase values, canonical `NEXT_PUBLIC_SITE_URL`, and optional server-only Gemini key. Apply the migrations to the production Supabase project and add the production authentication redirect URLs. Run the quality checks above and verify sign-up, confirmation, sign-in, private upload, and two-account isolation before release.

@@ -21,8 +21,10 @@ Implemented:
   or the practice website; the app tracks planned/requested/confirmed visits in
   a new owner-scoped table. Migration 202610030002 was applied to the connected
   Supabase project on October 3, 2026; teammates must apply it to other projects.
-- Authenticated Gemini benefits chat for general explanations and navigation.
-  It receives only the chat text, never stored documents or calculated totals.
+- Authenticated AI benefits chat for general explanations and navigation.
+  It receives a scoped read-only snapshot of the signed-in user's confirmed plan,
+  procedures, and deterministic calculation summary; it never receives raw PDFs,
+  storage paths, secrets, or write access.
 - A compact dashboard-only chat popup replaces the assistant sidebar route; settings
   is account-focused rather than a separate guide. Old assistant links redirect.
 - Plain-language plan text and care descriptions can be interpreted by Gemini into
@@ -33,6 +35,9 @@ Implemented:
   the public map feed, so the old map is not presented as an insurance directory.
 - The dashboard shows explicit engine-derived "Insurance pays" / "You pay" cards,
   annual remaining benefits, and a local in-app notice near renewal.
+- Final polish adds a read-only chatbot context snapshot, next-best-action guidance,
+  benefits-by-type modeling, clickable aggregate calculation receipts, and a
+  print-friendly `/app/summary` export view. No outbound reminder delivery is claimed.
 
 Auth repair: the previous local dev process ran without outbound network access,
 preventing Supabase session verification. Restarted with network permission and

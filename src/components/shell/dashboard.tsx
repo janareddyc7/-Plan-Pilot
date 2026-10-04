@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useMemo } from "react";
 import Link from "next/link";
-import { ArrowRight, RotateCcw, CalendarDays, Check, FileUp, Sparkles } from "lucide-react";
+import { ArrowRight, RotateCcw, CalendarDays, Check, FileUp, Sparkles, FileDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { benefitYearForDate } from "@/lib/insurance/benefit-year";
@@ -17,6 +17,9 @@ import { OneSmartQuestion } from "@/components/ai/one-smart-question";
 import { AiExplanation } from "@/components/ai/ai-explanation";
 import { selectOneSmartQuestion, withFieldValue } from "@/lib/optimization/one-question";
 import { createScenarioSnapshot } from "@/lib/scenarios/snapshot";
+import { BenefitsByType } from "@/components/insurance/benefits-by-type";
+import { NextBestAction } from "@/components/shell/next-best-action";
+import { CalculationSummaryDrawer } from "@/components/receipts/calculation-summary-drawer";
 
 const money = (cents: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(
@@ -39,6 +42,7 @@ export function Dashboard() {
     hasPlan,
   } = useSimulatorStore();
   const [selectedReceipt, setSelectedReceipt] = useState<ClaimReceipt>();
+  const [showCalculationSummary, setShowCalculationSummary] = useState(false);
   const [view, setView] = useState<"current" | "recommended">("current");
   const [saving, setSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string>();
@@ -126,6 +130,7 @@ export function Dashboard() {
           </p>
         </div>
         <div className="flex gap-2">
+          <Button asChild variant="outline" title="Open a print-friendly summary"><Link href="/app/summary"><FileDown size={13} /> <span className="hidden sm:inline">Export summary</span></Link></Button>
           <Button variant="outline" onClick={saveScenario} disabled={saving || procedures.length === 0} title={procedures.length === 0 ? "Add care details before saving a scenario." : undefined}>
             {saving ? "Saving…" : "Save snapshot"}
           </Button>
@@ -157,13 +162,15 @@ export function Dashboard() {
             label="Insurance pays"
             value={money(displayed.totals.insurerPaymentCents)}
             detail="Estimated plan payment"
+            onClick={() => setShowCalculationSummary(true)}
           />
           <Metric
             label="You pay"
             value={money(displayed.totals.patientPaymentCents)}
             detail={recommended ? "Recommended schedule" : "Current schedule"}
+            onClick={() => setShowCalculationSummary(true)}
           />
-          <Metric label="Starting estimate" value={money(baseline.totals.patientPaymentCents)} detail="Original schedule · your share" />
+          <Metric label="Starting estimate" value={money(baseline.totals.patientPaymentCents)} detail="Original schedule · your share" onClick={() => setShowCalculationSummary(true)} />
           <Metric
             label="Benefits remaining"
             value={money(remaining)}
@@ -179,6 +186,12 @@ export function Dashboard() {
           <Button asChild variant="outline"><Link href="/app/plans">Add care details <ArrowRight size={14} /></Link></Button>
         </Card>
       )}
+      {procedures.length > 0 && <NextBestAction
+          procedureCount={procedures.length}
+          optimization={optimization}
+          onOptimize={() => { optimize(); setView("recommended"); }}
+          onReview={() => setView("recommended")}
+        />}
       {validationError && (
         <p
           role="alert"
@@ -236,6 +249,7 @@ export function Dashboard() {
             }}
             onInspect={setSelectedReceipt}
           />
+          <BenefitsByType plan={plan} procedures={procedures} receipts={displayed.receipts} />
           <CostComparison optimization={optimization} />
         </div>
         <div className="space-y-4">
@@ -325,6 +339,7 @@ export function Dashboard() {
         receipt={selectedReceipt}
         onClose={() => setSelectedReceipt(undefined)}
       />
+      <CalculationSummaryDrawer calculation={showCalculationSummary ? displayed : undefined} procedures={procedures} onClose={() => setShowCalculationSummary(false)} />
     </div>
   );
 }
@@ -390,20 +405,21 @@ function Metric({
   label,
   value,
   detail,
+  onClick,
 }: {
   label: string;
   value: string;
   detail: string;
+  onClick?: () => void;
 }) {
-  return (
-    <Card className="px-4 py-4">
+  const content = <>
       <p className="text-[11px] text-muted-foreground">{label}</p>
       <p className="mt-2 text-2xl font-medium tracking-tight tabular-nums">
         {value}
       </p>
       <p className="mt-2 text-[10px] text-muted-foreground">{detail}</p>
-    </Card>
-  );
+    </>;
+  return onClick ? <button type="button" onClick={onClick} className="w-full rounded-lg border border-border bg-card px-4 py-4 text-left text-card-foreground shadow-control hover:border-primary/40 hover:bg-accent/20 focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-ring" aria-label={`${label}: ${value}. Open calculation details.`}>{content}</button> : <Card className="px-4 py-4">{content}</Card>;
 }
 function Row({ label, value }: { label: string; value: string }) {
   return (

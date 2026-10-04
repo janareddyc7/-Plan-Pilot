@@ -58,7 +58,8 @@ For local AI extraction, create a Google AI Studio API key and add `GEMINI_API_K
 | /sign-in, /sign-up | Email/password forms |
 | /forgot-password, /reset-password | Recovery request and authenticated password update |
 | /auth/callback, /auth/confirm | PKCE and token-hash email callbacks |
-| /app | Protected dashboard, engine-calculated cost split, timing comparison, renewal notice, and popup AI help |
+| /app | Protected dashboard, engine-calculated cost split, timing comparison, renewal notice, next-step guidance, and popup AI help |
+| /app/summary | Protected print-friendly plan, care, receipt, and schedule summary; use the browser's Save as PDF option |
 | /app/plans | Protected plan/care editor, private PDF upload, plain-language intake, and extraction review |
 | /app/scenarios | Saved scenario list |
 | /app/scenarios/[id] | Restore or delete a saved scenario |
@@ -67,7 +68,7 @@ For local AI extraction, create a Google AI Studio API key and add `GEMINI_API_K
 | /app/assistant | Redirects to dashboard popup AI help |
 | /api/dentists | Authenticated, cached city/ZIP dentist search via Nominatim and Overpass |
 | /api/appointments | Owner-scoped appointment list/save/delete |
-| /api/ai/chat | Authenticated Gemini guide; no user plan or receipt details sent |
+| /api/ai/chat | Authenticated AI guide with read-only confirmed plan/procedure context and deterministic receipt totals |
 | /api/ai/extract-care | Authenticated Gemini drafting of user-described care fields; user must review and save |
 | /api/documents/upload | Authenticated private PDF upload and extraction |
 | /api/documents | Authenticated private document metadata list/delete |

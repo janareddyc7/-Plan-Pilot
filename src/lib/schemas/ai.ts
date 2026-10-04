@@ -25,6 +25,16 @@ const waitingPeriodSchema = z
   })
   .strict();
 
+const frequencyLimitSchema = z
+  .object({
+    serviceClass: serviceClassSchema,
+    procedureCode: z.string().trim().min(1).max(20).optional(),
+    maxUses: z.number().int().positive().max(100),
+    periodMonths: z.number().int().positive().max(120),
+    usedDates: z.array(dateSchema).max(100).default([]),
+  })
+  .strict();
+
 /**
  * The model receives monetary values as printed strings. Code converts only
  * an unambiguous dollar string to integer cents; the model never calculates
@@ -50,6 +60,7 @@ export const aiRawExtractionResultSchema = z
         deductibleAppliesTo: classFlagsSchema.optional(),
         networkRules: planNetworkRulesSchema.optional(),
         waitingPeriods: z.array(waitingPeriodSchema).optional(),
+        frequencyLimits: z.array(frequencyLimitSchema).optional(),
         benefitYearStartMonth: z.number().int().min(1).max(12).optional(),
         benefitYearStartDay: z.number().int().min(1).max(31).optional(),
         preventiveCountsTowardMax: z.boolean().optional(),
@@ -89,6 +100,7 @@ export const aiExtractionResultSchema = z
         deductibleAppliesTo: classFlagsSchema.optional(),
         networkRules: planNetworkRulesSchema.optional(),
         waitingPeriods: z.array(waitingPeriodSchema).optional(),
+        frequencyLimits: z.array(frequencyLimitSchema).optional(),
         benefitYearStartMonth: z.number().int().min(1).max(12).optional(),
         benefitYearStartDay: z.number().int().min(1).max(31).optional(),
         preventiveCountsTowardMax: z.boolean().optional(),

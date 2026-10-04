@@ -8,6 +8,7 @@ import {
 import { benefitYearForDate } from "./benefit-year";
 import { resolveNetworkAmounts } from "./network";
 import { percentageOfCents, sumCents } from "./rounding";
+import { frequencyViolationForProcedure, frequencyRuleMatches } from "./coverage-rules";
 
 export interface ClaimsCalculation {
   receipts: ClaimReceipt[];
@@ -59,6 +60,10 @@ export function calculateClaims({
   >();
   const warnings: string[] = [];
   const receipts: ClaimReceipt[] = [];
+  const priorDatesByFrequencyRule = new Map<number, string[]>();
+  for (const [index, rule] of (plan.frequencyLimits ?? []).entries()) {
+    priorDatesByFrequencyRule.set(index, [...rule.usedDates]);
+  }
   const ordered = procedures
     .map((procedure) => ({
       procedure,
@@ -109,6 +114,16 @@ export function calculateClaims({
       warnings.push(
         `${procedure.name}: service date is before the ${procedure.serviceClass} waiting period ends (${waitingPeriod.eligibleFrom}).`,
       );
+    }
+    const frequencyViolations = frequencyViolationForProcedure(
+      plan,
+      procedure,
+      date,
+      priorDatesByFrequencyRule,
+    );
+    if (frequencyViolations.length) {
+      covered = false;
+      warnings.push(...frequencyViolations);
     }
     const deductibleApplies =
       procedure.planRuleOverrides?.deductibleApplies ??
@@ -172,12 +187,23 @@ export function calculateClaims({
       ),
       assumptions: [
         ...network.warnings,
+        ...(procedure.costSource === "reference-benchmark"
+          ? ["Fees use a reference benchmark because a dentist quote was not supplied; verify the actual billed and allowed amounts."]
+          : []),
         ...(covered
           ? []
           : ["Procedure marked as not covered by a plan rule override."]),
       ],
     });
     receipts.push(receipt);
+    if (covered) {
+      for (const [index, rule] of (plan.frequencyLimits ?? []).entries()) {
+        if (!frequencyRuleMatches(rule, procedure)) continue;
+        const dates = priorDatesByFrequencyRule.get(index) ?? [];
+        dates.push(date);
+        priorDatesByFrequencyRule.set(index, dates);
+      }
+    }
   }
   const totals = {
     billedFeeCents: sumCents(...receipts.map((r) => r.billedFee)),

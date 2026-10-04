@@ -6,6 +6,7 @@ import { ArrowUpRight, ArrowRightLeft } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { useSimulatorStore } from "@/store/simulator-store";
 import { compareNetworkQuotes } from "@/lib/insurance/compare-network";
+import { lookupReferenceCost } from "@/lib/insurance/reference-costs";
 
 const money = (cents: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(cents / 100);
 const directory = "https://clients.go2dental.com/lfg/FindADentist";
@@ -17,6 +18,9 @@ export default function Page() {
   const [inside, setInside] = useState({ billed: "", allowed: "" });
   const [outside, setOutside] = useState({ billed: "", allowed: "" });
   const selectedId = procedures.some((item) => item.id === procedureId) ? procedureId : procedures[0]?.id;
+  const selectedProcedure = procedures.find((item) => item.id === selectedId);
+  const referenceInside = lookupReferenceCost(selectedProcedure?.code, "in-network");
+  const referenceOutside = lookupReferenceCost(selectedProcedure?.code, "out-of-network");
   const valid = [inside.billed, inside.allowed, outside.billed, outside.allowed].every((value) => cents(value) !== undefined);
   const comparison = useMemo(() => {
     if (!ready || !hasPlan || !plan.isConfirmed || !selectedId || !valid) return undefined;
@@ -28,6 +32,7 @@ export default function Page() {
     <Card className="p-5"><div className="flex items-center gap-2 text-sm font-medium"><ArrowRightLeft size={16} className="text-primary"/> Compare real quotes</div><p className="mt-2 text-xs leading-6 text-muted-foreground">Get each dentist’s billed estimate and your insurer’s allowed amount for the same procedure. Network status and prices are not pulled from a live insurer feed; verify them before relying on this comparison.</p>
       {!ready ? <p className="mt-5 text-xs text-muted-foreground">Loading your plan…</p> : !hasPlan || !plan.isConfirmed ? <p className="mt-5 text-xs"><Link href="/app/plans" className="font-medium text-primary underline">Confirm your plan</Link> before comparing costs.</p> : procedures.length === 0 ? <p className="mt-5 text-xs"><Link href="/app/plans" className="font-medium text-primary underline">Add a procedure</Link> to your plan first.</p> : <div className="mt-5 space-y-5">
         <label className="block max-w-md text-xs font-medium">Procedure<select value={selectedId} onChange={(event) => setProcedureId(event.target.value)} className="mt-2 h-10 w-full rounded-md border border-input bg-background px-3 text-xs">{procedures.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
+        {referenceInside && referenceOutside && <div className="rounded-md border border-primary/20 bg-secondary/25 p-3 text-[11px] leading-5 text-muted-foreground"><p><span className="font-medium text-foreground">No quotes yet?</span> Use the labeled {selectedProcedure?.code} benchmark to compare both network scenarios, then replace it with actual dentist and insurer amounts.</p><button type="button" onClick={() => { setInside({ billed: (referenceInside.billedFeeCents / 100).toFixed(2), allowed: (referenceInside.allowedFeeCents / 100).toFixed(2) }); setOutside({ billed: (referenceOutside.billedFeeCents / 100).toFixed(2), allowed: (referenceOutside.allowedFeeCents / 100).toFixed(2) }); }} className="mt-2 inline-flex h-8 items-center rounded-md border border-border px-3 text-[11px] font-medium text-primary hover:bg-muted">Use reference benchmark for both</button></div>}
         <div className="grid gap-4 md:grid-cols-2"><QuoteFields title="In-network dentist" quote={inside} setQuote={setInside}/><QuoteFields title="Out-of-network dentist" quote={outside} setQuote={setOutside}/></div>
         {!valid && <p className="text-xs text-muted-foreground">Enter all four quote amounts to calculate a comparison.</p>}{valid && !comparison && <p role="alert" className="text-xs text-destructive">Check that each allowed amount is no greater than its billed fee.</p>}
       </div>}</Card>

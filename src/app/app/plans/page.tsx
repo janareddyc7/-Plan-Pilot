@@ -59,6 +59,7 @@ function PlanPage() {
         ...data.networkRules,
       };
     if (data.waitingPeriods) changes.waitingPeriods = data.waitingPeriods;
+    if (data.frequencyLimits) changes.frequencyLimits = data.frequencyLimits;
     if (data.benefitYearStartMonth !== undefined) changes.benefitYearStartMonth = data.benefitYearStartMonth;
     if (data.benefitYearStartDay !== undefined) changes.benefitYearStartDay = data.benefitYearStartDay;
     if (data.preventiveCountsTowardMax !== undefined) changes.preventiveCountsTowardMax = data.preventiveCountsTowardMax;

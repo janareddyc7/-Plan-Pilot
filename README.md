@@ -95,7 +95,7 @@ npm run test
 npm run build
 ```
 
-Verified on October 3, 2026: dependency installation, theme check, typecheck, lint (zero warnings), all 22 Vitest tests, and production build passed. The public home page, authenticated plans editor, and extraction-review UI were checked in the browser. Live Gemini extraction requires a configured key.
+Verified on October 4, 2026: theme check, typecheck, lint (zero warnings), all 33 Vitest tests, and production build passed. The public home page, authenticated plans editor, and extraction-review UI were checked in the browser. Live Gemini extraction requires a configured key.
 
 Tests cover money/schema boundaries and redirect validation. Live auth, recovery email, database migration and two-account RLS/storage verification require a configured Supabase project. Check that account A cannot read/update account B's rows, reference B's documents/plans, or read B's storage paths before releasing persistence features.
 
@@ -104,6 +104,8 @@ Tests cover money/schema boundaries and redirect validation. Live auth, recovery
 Import this Git repository in Vercel with the Next.js preset. Add the public Supabase variables and canonical site URL; apply the migration and configure Supabase production Site URL/redirect allowlist/email templates. Run a production build and the auth smoke test. No deployment has been performed by the scaffold.
 
 The repository contains no real patient data or external AI keys. Financial outputs remain deterministic engine results; Gemini only proposes document fields and prose-free structured data.
+
+When a dentist quote is not available, the care form can use a clearly labeled offline benchmark for common CDT codes (see `src/lib/insurance/reference-costs.ts`). Benchmark amounts are planning estimates, not live FAIR Health, carrier, or network rates; replace them with the dentist's billed and allowed amounts before relying on a result.
 
 ## Current connection and theme
 

@@ -115,7 +115,7 @@ export const useSimulatorStore = create<SimulatorState>((set, get) => ({
       if (!dateSchema.safeParse(date).success)
         return { validationError: "Choose a valid service date." };
       const schedule = { ...state.currentSchedule, [procedureId]: date };
-      const result = evaluateSchedule(state.procedures, schedule);
+      const result = evaluateSchedule(state.procedures, schedule, state.plan);
       if (!result.feasible)
         return { validationError: result.reasons.join(" ") };
       return {
@@ -217,7 +217,7 @@ export const useSimulatorStore = create<SimulatorState>((set, get) => ({
       if (!parsed.success)
         return { validationError: "This saved scenario is no longer valid." };
       const value = parsed.data;
-      const feasible = evaluateSchedule(value.procedureSnapshots, value.currentSchedule);
+      const feasible = evaluateSchedule(value.procedureSnapshots, value.currentSchedule, value.planSnapshot);
       if (!feasible.feasible)
         return { validationError: feasible.reasons.join(" ") };
       return {

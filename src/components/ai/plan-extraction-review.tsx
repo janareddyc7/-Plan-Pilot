@@ -17,6 +17,7 @@ const labels: Record<string, string> = {
   deductibleAppliesTo: "Deductible applies to",
   networkRules: "Network rules",
   waitingPeriods: "Waiting periods",
+  frequencyLimits: "Frequency limits",
   benefitYearStartMonth: "Benefit year month",
   benefitYearStartDay: "Benefit year day",
   preventiveCountsTowardMax: "Preventive counts toward maximum",

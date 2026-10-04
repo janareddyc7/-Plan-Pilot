@@ -67,6 +67,7 @@ Canonical field names for the fields array are: name, annualMaximum, alreadyUsed
 individualDeductible, alreadyUsedDeductible, coverageByClass.preventive,
 coverageByClass.basic, coverageByClass.major, deductibleAppliesTo, networkRules,
 waitingPeriods, benefitYearStartMonth, benefitYearStartDay, preventiveCountsTowardMax.
+frequencyLimits (with maxUses, periodMonths, optional procedureCode, and only explicitly listed usedDates).
 For source.note, state that the field was quoted from the uploaded plan. Do not include a source
 for a value you cannot verify. Do not output any totals or recommendations.
 
@@ -124,6 +125,7 @@ function normalizeExtraction(
   if (data.deductibleAppliesTo && (!context.plainText || /deductible\s+(?:does\s+not\s+)?appl(?:y|ies)|exempt\s+from\s+(?:the\s+)?deductible/i.test(context.plainText))) extractedPlanData.deductibleAppliesTo = data.deductibleAppliesTo;
   if (data.networkRules) extractedPlanData.networkRules = data.networkRules;
   if (data.waitingPeriods) extractedPlanData.waitingPeriods = data.waitingPeriods;
+  if (data.frequencyLimits) extractedPlanData.frequencyLimits = data.frequencyLimits;
   if (data.benefitYearStartMonth !== undefined)
     extractedPlanData.benefitYearStartMonth = data.benefitYearStartMonth;
   if (data.benefitYearStartDay !== undefined)

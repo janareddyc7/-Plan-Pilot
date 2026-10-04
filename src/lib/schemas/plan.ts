@@ -7,6 +7,29 @@ import {
   classFlagsSchema,
   serviceClassSchema,
 } from "./common";
+
+export const waitingPeriodRuleSchema = z
+  .object({
+    serviceClass: serviceClassSchema,
+    eligibleFrom: dateSchema,
+  })
+  .strict();
+
+/**
+ * A frequency rule is intentionally explicit about the measurement window.
+ * `usedDates` contains dates already used before the workspace was created;
+ * planned procedures are added by the claims engine as it evaluates a schedule.
+ */
+export const frequencyLimitRuleSchema = z
+  .object({
+    serviceClass: serviceClassSchema,
+    procedureCode: z.string().trim().min(1).max(20).optional(),
+    maxUses: z.number().int().positive().max(100),
+    periodMonths: z.number().int().positive().max(120),
+    usedDates: z.array(dateSchema).max(100),
+  })
+  .strict();
+
 export const unknownPlanFieldSchema = z
   .object({
     field: z.enum([
@@ -55,16 +78,8 @@ export const dentalPlanSchema = z
       })
       .strict()
       .optional(),
-    waitingPeriods: z
-      .array(
-        z
-          .object({
-            serviceClass: serviceClassSchema,
-            eligibleFrom: dateSchema,
-          })
-          .strict(),
-      )
-      .optional(),
+    waitingPeriods: z.array(waitingPeriodRuleSchema).optional(),
+    frequencyLimits: z.array(frequencyLimitRuleSchema).optional(),
     preventiveCountsTowardMax: z.boolean(),
     sourceDocumentId: z.uuid().optional(),
     isConfirmed: z.boolean(),

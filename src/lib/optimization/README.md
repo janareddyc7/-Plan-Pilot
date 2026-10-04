@@ -1,1 +1,1 @@
-Reserved for feasibility, finite search, stable scoring and sensitivity analysis. Never move procedures outside dentist-approved windows. No optimizer exists yet.
+Deterministic finite schedule search and feasibility checks. Candidate dates stay inside dentist-approved windows and respect fixed, urgent, dependency, waiting-period, and frequency-limit rules. Keep score changes and explanation copy grounded in the calculation engine; never let AI choose a clinical date.

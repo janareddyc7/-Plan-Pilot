@@ -1,9 +1,10 @@
-import type { Procedure, Schedule } from "@/lib/schemas";
+import type { DentalPlan, Procedure, Schedule } from "@/lib/schemas";
+import { planRuleViolations } from "@/lib/insurance/coverage-rules";
 
-export type FeasibilityReason = "fixed-date" | "outside-window" | "dependency" | "urgent" | "valid";
+export type FeasibilityReason = "fixed-date" | "outside-window" | "dependency" | "urgent" | "benefit-rule" | "valid";
 export interface FeasibilityResult { feasible: boolean; reasons: string[]; reasonCodes: FeasibilityReason[] }
 
-export function evaluateSchedule(procedures: Procedure[], schedule: Schedule): FeasibilityResult {
+export function evaluateSchedule(procedures: Procedure[], schedule: Schedule, plan?: DentalPlan): FeasibilityResult {
   const byId = new Map(procedures.map((procedure) => [procedure.id, procedure]));
   const reasons: string[] = [];
   const reasonCodes: FeasibilityReason[] = [];
@@ -17,6 +18,11 @@ export function evaluateSchedule(procedures: Procedure[], schedule: Schedule): F
       const dependencyDate = schedule[dependencyId];
       if (dependencyDate && dependencyDate > date) { reasons.push(`${procedure.name} must follow ${byId.get(dependencyId)?.name ?? "its prerequisite"}.`); reasonCodes.push("dependency"); }
     }
+  }
+  if (plan) {
+    const ruleReasons = planRuleViolations(plan, procedures, schedule);
+    reasons.push(...ruleReasons);
+    if (ruleReasons.length) reasonCodes.push("benefit-rule");
   }
   return { feasible: reasons.length === 0, reasons, reasonCodes: reasons.length === 0 ? ["valid"] : [...new Set(reasonCodes)] };
 }

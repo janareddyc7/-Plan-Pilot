@@ -7,6 +7,7 @@ import { useSimulatorStore } from "@/store/simulator-store";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { lookupReferenceCost } from "@/lib/insurance/reference-costs";
 
 const today = new Date().toISOString().slice(0, 10);
 
@@ -26,6 +27,16 @@ export function ProcedureCreateForm({ planId, enabled }: { planId: string; enabl
   const [description, setDescription] = useState("");
   const [interpreting, setInterpreting] = useState(false);
   const [reviewNote, setReviewNote] = useState("");
+  const referenceEstimate = lookupReferenceCost(code, networkStatus);
+
+  function useReferenceEstimate() {
+    if (!referenceEstimate) return;
+    setServiceClass(referenceEstimate.serviceClass);
+    setBilled((referenceEstimate.billedFeeCents / 100).toFixed(2));
+    setAllowed((referenceEstimate.allowedFeeCents / 100).toFixed(2));
+    if (!name.trim()) setName(referenceEstimate.name);
+    setReviewNote(`${referenceEstimate.code} benchmark loaded. It is a planning estimate, not a dentist quote; verify the actual fee before saving.`);
+  }
 
   async function interpret() {
     setInterpreting(true); setMessage(undefined); setReviewNote("");
@@ -48,13 +59,19 @@ export function ProcedureCreateForm({ planId, enabled }: { planId: string; enabl
   async function save(event: React.FormEvent) {
     event.preventDefault();
     setMessage(undefined);
+    const fallback = !billed.trim() ? referenceEstimate : undefined;
+    if (!billed.trim() && !fallback) {
+      setMessage("Enter a dentist quote, or add a supported CDT code to use a labeled reference estimate.");
+      return;
+    }
     const procedure: Procedure = {
       id: crypto.randomUUID(),
-      name: name.trim(),
+      name: name.trim() || fallback?.name || "",
       code: code.trim() || undefined,
-      serviceClass,
-      estimatedBilledFeeCents: Math.round(Number(billed) * 100),
-      estimatedAllowedFeeCents: allowed ? Math.round(Number(allowed) * 100) : undefined,
+      serviceClass: fallback?.serviceClass ?? serviceClass,
+      estimatedBilledFeeCents: fallback?.billedFeeCents ?? Math.round(Number(billed) * 100),
+      estimatedAllowedFeeCents: fallback?.allowedFeeCents ?? (allowed ? Math.round(Number(allowed) * 100) : undefined),
+      costSource: fallback ? "reference-benchmark" : "dentist-quote",
       networkStatus,
       earliestDate,
       dentistApprovedLatestDate: latestDate || undefined,
@@ -100,7 +117,8 @@ export function ProcedureCreateForm({ planId, enabled }: { planId: string; enabl
           <Field label="CDT code (optional)" value={code} onChange={setCode} placeholder="e.g. D2740" />
           <Select label="Service class" value={serviceClass} onChange={(value) => setServiceClass(value as Procedure["serviceClass"])} options={[["preventive", "Preventive"], ["basic", "Basic"], ["major", "Major"]]} />
           <Select label="Network" value={networkStatus} onChange={(value) => setNetworkStatus(value as Procedure["networkStatus"])} options={[["in-network", "In-network"], ["out-of-network", "Out-of-network"]]} />
-          <Field label="Billed estimate ($)" value={billed} onChange={setBilled} type="number" min="0" step="0.01" placeholder="0.00" />
+          <div className="sm:col-span-2 rounded-md border border-primary/20 bg-secondary/25 p-3 text-[11px] leading-5 text-muted-foreground"><p><span className="font-medium text-foreground">No quote yet?</span> Enter a supported CDT code and use a labeled benchmark to keep testing. It will appear as a reference estimate in receipts.</p>{referenceEstimate && <Button type="button" variant="outline" className="mt-2 h-8 text-[11px]" onClick={useReferenceEstimate}>Use {referenceEstimate.code} benchmark · {(referenceEstimate.billedFeeCents / 100).toFixed(0)} billed</Button>}</div>
+          <Field label="Billed estimate ($)" value={billed} onChange={setBilled} type="number" min="0" step="0.01" placeholder={referenceEstimate ? "Leave blank to use benchmark" : "0.00"} />
           <Field label="Allowed estimate ($, optional)" value={allowed} onChange={setAllowed} type="number" min="0" step="0.01" placeholder="0.00" />
           <Field label="Earliest approved date" value={earliestDate} onChange={setEarliestDate} type="date" />
           <Field label="Latest approved date (optional)" value={latestDate} onChange={setLatestDate} type="date" />

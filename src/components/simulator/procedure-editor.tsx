@@ -39,7 +39,7 @@ export function ProcedureEditor({ procedure, planId }: { procedure: Procedure; p
           </p>
         </div>
         <span className="text-[10px] text-muted-foreground">
-          Editable treatment rule
+          {procedure.costSource === "reference-benchmark" ? "Reference estimate" : "Editable treatment rule"}
         </span>
       </div>
       <div className="mt-5 grid gap-4 sm:grid-cols-2">
@@ -162,7 +162,7 @@ export function ProcedureEditor({ procedure, planId }: { procedure: Procedure; p
         </p>
       )}
       <div className="mt-4 flex items-center justify-between gap-3 border-t border-border pt-4">
-        <p className="text-[10px] text-muted-foreground" role="status">{message}</p>
+        <p className="text-[10px] text-muted-foreground" role="status">{message ?? (procedure.costSource === "reference-benchmark" ? "Benchmark only · replace with your dentist's quote when available." : "")}</p>
         <button type="button" onClick={saveToAccount} disabled={saving} className="text-[11px] font-medium text-primary hover:underline disabled:opacity-50">
           {saving ? "Saving…" : "Save procedure"}
         </button>

@@ -13,6 +13,7 @@ export const procedureSchema = z
     serviceClass: serviceClassSchema,
     estimatedBilledFeeCents: centsSchema,
     estimatedAllowedFeeCents: centsSchema.optional(),
+    costSource: z.enum(["dentist-quote", "reference-benchmark"]).optional(),
     networkStatus: z.enum(["in-network", "out-of-network"]),
     earliestDate: dateSchema,
     dentistApprovedLatestDate: dateSchema.optional(),

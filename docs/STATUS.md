@@ -38,6 +38,12 @@ Implemented:
   the public map feed, so the old map is not presented as an insurance directory.
 - The dashboard shows explicit engine-derived "Insurance pays" / "You pay" cards,
   annual remaining benefits, and a local in-app notice near renewal.
+- Plan setup now exposes editable waiting-period dates and frequency limits (including
+  procedure-code rules and prior service dates). The claims engine and optimizer reject
+  schedules that violate them and explain the constraint.
+- Common CDT codes have a clearly labeled offline reference-cost fallback for testing
+  without a dentist quote. It is not a live carrier or FAIR Health feed.
+- Optimizer results include human-readable reasons for date changes and rule checks.
 - Final polish adds a read-only chatbot context snapshot, next-best-action guidance,
   benefits-by-type modeling, clickable aggregate calculation receipts, and a
   print-friendly `/app/summary` export view. No outbound reminder delivery is claimed.
@@ -68,5 +74,5 @@ comparison and receipt open/Escape in Chrome; mobile dashboard/auth layout;
 production compilation; tests for corrected deductible, cap and preventive
 accounting; server-session response tests; Phase 8 extraction routes and
 confirmation UI; Phase 9/10 routes and persistence UI. The automated theme
-check, typecheck, lint, 22-test suite, and production build all pass. Live
+check, typecheck, lint, 33-test suite, and production build all pass. Live
 Supabase two-account isolation still requires two test accounts.

@@ -39,6 +39,12 @@ export function CostComparison({
               ? "Your current schedule is already as cost-effective as the alternatives checked."
               : "Review the recommended dates before applying the schedule."}
           </p>
+          <div className="mt-4 rounded-md border border-border/80 bg-muted/25 p-3">
+            <p className="text-[10px] font-medium uppercase tracking-wider text-primary">Why this result</p>
+            <ul className="mt-2 space-y-1.5 text-[11px] leading-5 text-muted-foreground">
+              {optimization.reasons.map((reason) => <li key={reason} className="flex gap-2"><span className="text-primary">·</span><span>{reason}</span></li>)}
+            </ul>
+          </div>
         </>
       ) : (
         <p className="mt-4 text-xs leading-6 text-muted-foreground">

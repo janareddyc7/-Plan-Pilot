@@ -1,12 +1,29 @@
 "use client";
 import { useState } from "react";
-import type { DentalPlan } from "@/lib/schemas";
+import type { DentalPlan, Procedure } from "@/lib/schemas";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useSimulatorStore } from "@/store/simulator-store";
 import { dentalPlanSchema } from "@/lib/schemas";
 const dollars = (cents: number) => (cents / 100).toFixed(2);
+type ServiceClass = Procedure["serviceClass"];
+type FrequencyDraft = Record<ServiceClass, { procedureCode: string; maxUses: string; periodMonths: string; usedDates: string }>;
+const serviceClasses: ServiceClass[] = ["preventive", "basic", "major"];
+const serviceLabels: Record<ServiceClass, string> = { preventive: "Preventive", basic: "Basic", major: "Major" };
+
+function initialFrequencyDraft(plan: DentalPlan): FrequencyDraft {
+  return Object.fromEntries(serviceClasses.map((serviceClass) => {
+    const rule = plan.frequencyLimits?.find((item) => item.serviceClass === serviceClass);
+    return [serviceClass, {
+      procedureCode: rule?.procedureCode ?? "",
+      maxUses: rule ? String(rule.maxUses) : "",
+      periodMonths: rule ? String(rule.periodMonths) : "12",
+      usedDates: rule?.usedDates.join(", ") ?? "",
+    }];
+  })) as FrequencyDraft;
+}
+
 export function PlanEditor({ plan, onSaved }: { plan: DentalPlan; onSaved?: (plan: DentalPlan) => void }) {
   const updatePlan = useSimulatorStore((state) => state.updatePlan);
   const error = useSimulatorStore((state) => state.validationError);
@@ -31,6 +48,8 @@ export function PlanEditor({ plan, onSaved }: { plan: DentalPlan; onSaved?: (pla
   const [deductibleAppliesTo, setDeductibleAppliesTo] = useState(plan.deductibleAppliesTo);
   const [preventiveCountsTowardMax, setPreventiveCountsTowardMax] = useState(plan.preventiveCountsTowardMax);
   const [outOfNetworkBalanceBilling, setOutOfNetworkBalanceBilling] = useState(plan.networkRules?.outOfNetworkBalanceBilling ?? true);
+  const [waitingEligibleFrom, setWaitingEligibleFrom] = useState<Record<ServiceClass, string>>(() => Object.fromEntries(serviceClasses.map((serviceClass) => [serviceClass, plan.waitingPeriods?.find((rule) => rule.serviceClass === serviceClass)?.eligibleFrom ?? ""])) as Record<ServiceClass, string>);
+  const [frequencyDraft, setFrequencyDraft] = useState<FrequencyDraft>(() => initialFrequencyDraft(plan));
   const [saving, setSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string>();
   const [saveError, setSaveError] = useState<string>();
@@ -53,6 +72,12 @@ export function PlanEditor({ plan, onSaved }: { plan: DentalPlan; onSaved?: (pla
       deductibleAppliesTo,
       preventiveCountsTowardMax,
       networkRules: { outOfNetworkBalanceBilling, allowedAmountPolicy: plan.networkRules?.allowedAmountPolicy ?? "explicit" as const },
+      waitingPeriods: serviceClasses.flatMap((serviceClass) => waitingEligibleFrom[serviceClass] ? [{ serviceClass, eligibleFrom: waitingEligibleFrom[serviceClass] }] : []),
+      frequencyLimits: serviceClasses.flatMap((serviceClass) => {
+        const draft = frequencyDraft[serviceClass];
+        if (!draft.maxUses.trim()) return [];
+        return [{ serviceClass, procedureCode: draft.procedureCode.trim() || undefined, maxUses: Number(draft.maxUses), periodMonths: Number(draft.periodMonths), usedDates: draft.usedDates.split(",").map((date) => date.trim()).filter(Boolean) }];
+      }),
       isConfirmed: true as const,
     };
   }
@@ -176,6 +201,20 @@ export function PlanEditor({ plan, onSaved }: { plan: DentalPlan; onSaved?: (pla
           onChange={setRenewalMonth}
           step="1"
         />
+        <fieldset className="sm:col-span-2 rounded-md border border-border p-4">
+          <legend className="px-1 text-xs font-medium">Waiting periods</legend>
+          <p className="mt-1 text-[11px] leading-5 text-muted-foreground">If your summary says a service class is eligible only after a date, enter that date. Leave it blank when there is no waiting period.</p>
+          <div className="mt-3 grid gap-3 sm:grid-cols-3">
+            {serviceClasses.map((serviceClass) => <label key={serviceClass} className="text-[11px] text-muted-foreground">{serviceLabels[serviceClass]} eligible from<Input type="date" value={waitingEligibleFrom[serviceClass]} onChange={(event) => setWaitingEligibleFrom({ ...waitingEligibleFrom, [serviceClass]: event.target.value })} /></label>)}
+          </div>
+        </fieldset>
+        <fieldset className="sm:col-span-2 rounded-md border border-border p-4">
+          <legend className="px-1 text-xs font-medium">Frequency limits</legend>
+          <p className="mt-1 text-[11px] leading-5 text-muted-foreground">Add rules such as “2 cleanings every 12 months.” A procedure code narrows the rule; blank code applies it to the whole service class. Include known prior service dates, separated by commas.</p>
+          <div className="mt-3 space-y-3">
+            {serviceClasses.map((serviceClass) => { const draft = frequencyDraft[serviceClass]; return <div key={serviceClass} className="grid gap-3 rounded-md border border-border/70 p-3 sm:grid-cols-[1.2fr_1fr_1fr_1.8fr] sm:items-end"><label className="text-[11px] text-muted-foreground">Class / CDT code<span className="mt-2 block text-xs text-foreground">{serviceLabels[serviceClass]}</span><Input value={draft.procedureCode} placeholder="e.g. D1110 (optional)" onChange={(event) => setFrequencyDraft({ ...frequencyDraft, [serviceClass]: { ...draft, procedureCode: event.target.value } })} /></label><Field label="Max uses" value={draft.maxUses} onChange={(value) => setFrequencyDraft({ ...frequencyDraft, [serviceClass]: { ...draft, maxUses: value } })} step="1" /><Field label="Every (months)" value={draft.periodMonths} onChange={(value) => setFrequencyDraft({ ...frequencyDraft, [serviceClass]: { ...draft, periodMonths: value } })} step="1" /><label className="text-[11px] text-muted-foreground">Known dates (comma-separated)<Input type="text" value={draft.usedDates} placeholder="2026-03-01, 2026-09-01" onChange={(event) => setFrequencyDraft({ ...frequencyDraft, [serviceClass]: { ...draft, usedDates: event.target.value } })} /></label></div>; })}
+          </div>
+        </fieldset>
         <Field
           label="Renewal day"
           value={renewalDay}
@@ -186,7 +225,7 @@ export function PlanEditor({ plan, onSaved }: { plan: DentalPlan; onSaved?: (pla
         <div className="sm:col-span-2 grid gap-3 sm:grid-cols-2"><label className="flex items-start gap-2 rounded-md border border-border p-3 text-xs"><input type="checkbox" checked={preventiveCountsTowardMax} onChange={(event) => setPreventiveCountsTowardMax(event.target.checked)} className="mt-0 size-4"/><span>Preventive payments count toward annual maximum</span></label><label className="flex items-start gap-2 rounded-md border border-border p-3 text-xs"><input type="checkbox" checked={outOfNetworkBalanceBilling} onChange={(event) => setOutOfNetworkBalanceBilling(event.target.checked)} className="mt-0 size-4"/><span>Out-of-network dentist may bill above allowed amount</span></label></div>
         <div className="sm:col-span-2 flex items-center justify-between border-t border-border pt-5">
           <p className="text-[11px] text-muted-foreground">
-            Coverage is applied by service class. Confirm these values against your summary.
+            Coverage, waiting periods, and frequency rules are applied exactly as entered. Confirm these values against your summary.
           </p>
           <div className="flex flex-wrap justify-end gap-2">
             <Button type="submit" variant="outline">Update session</Button>

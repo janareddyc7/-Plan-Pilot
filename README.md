@@ -1,22 +1,60 @@
 # PlanPilot
 
-Dental benefits planning with a real account workspace, deterministic claim receipts, schedule comparisons, Supabase authentication, private PDF upload, Gemini-assisted plan extraction, and the shared Solar Dusk theme. The production workspace uses only owner-scoped data.
+PlanPilot is a dental-benefits planning workspace. A person enters confirmed plan rules and dentist-provided care details; deterministic TypeScript code then estimates the plan payment, the patient's responsibility, and the impact of dentist-approved schedule options.
 
-## Local setup
+**AI proposes. You verify. Code computes.**
 
-Requires Node.js 22.13+ (Node 24 recommended) and npm.
+> Educational estimates only. Confirm coverage, procedure coding, network participation, claim dates, and treatment timing with the insurer and dentist. PlanPilot is not a substitute for a plan document, claim determination, or clinical advice.
+
+## Evaluator Quick Start
+
+The application is at the repository root. There is no Dockerfile.
+
+```sh
+npm ci && npm run build && npm run start
+```
+
+The public home page builds and starts without credentials. The account workspace requires a configured Supabase project because it stores private, owner-scoped plan data. AI-assisted extraction is optional; manual entry remains available when `GEMINI_API_KEY` is absent.
+
+## What It Does
+
+| Capability          | How it works                                                                                                                                                                                                                     |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Plan entry          | Captures annual maximum, deductible, coverage by service class, network rules, renewal date, and prior benefit use. Plan text and PDFs can produce unconfirmed suggestions for review.                                           |
+| Care entry          | Captures a plain-language procedure description, estimated billed and allowed amounts, network status, and dentist-approved timing windows. A small, clearly labeled benchmark can fill a missing quote for supported CDT codes. |
+| Claim receipts      | Applies the deductible, service-class coverage, network adjustment, annual maximum, waiting periods, and confirmed frequency rules in chronological order.                                                                       |
+| Schedule comparison | Enumerates bounded, dentist-approved date options and chooses the feasible option with the lowest estimated patient responsibility. Original, current, and recommended schedules stay separate.                                  |
+| Explanation         | Shows itemized receipts and source/assumption notes. AI can explain already-calculated values but cannot create financial figures.                                                                                               |
+| Private workspace   | Uses Supabase Auth, owner-scoped tables, RLS, and private PDF storage.                                                                                                                                                           |
+
+All money is stored and calculated as integer cents. Percentages are whole numbers, so `80` means 80%.
+
+## Estimate Order
+
+For each procedure, ordered by its selected service date, the engine:
+
+1. Resolves billed and allowed amounts and any in-network write-off or out-of-network gap.
+2. Checks confirmed waiting-period and frequency rules.
+3. Applies the remaining deductible when it applies to that service class.
+4. Applies the confirmed coverage percentage to the remaining allowed amount.
+5. Caps the plan payment at the remaining annual maximum for that benefit year.
+6. Produces a receipt with insurer payment, patient payment, remaining deductible, remaining annual maximum, and assumptions.
+
+The optimizer never moves urgent, fixed, dependent, or out-of-window care. It only compares dates the dentist has approved. It does not decide whether delaying care is clinically appropriate.
+
+## Local Setup
+
+Requires Node.js 22.13 or later; Node.js 24 is recommended.
 
 ```sh
 npm ci
-cp .env.example .env.local
+Copy-Item .env.example .env.local
 npm run dev
 ```
 
-On PowerShell, use `Copy-Item .env.example .env.local`. Open http://localhost:3000, create an account, and start with your own benefits summary. The protected workspace loads only the signed-in user’s saved plan and procedures. Do not commit .env.local.
+Open `http://localhost:3000`. Do not commit `.env.local`.
 
-## Supabase setup
-
-1. Create a Supabase project. Copy its project URL and publishable key (legacy anon key also supported) to .env.local:
+### Environment Variables
 
 ```dotenv
 NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT.supabase.co
@@ -26,95 +64,62 @@ GEMINI_API_KEY=YOUR_GOOGLE_AI_STUDIO_KEY
 GEMINI_MODEL=gemini-3.5-flash-lite
 ```
 
-No service-role key is needed. `GEMINI_API_KEY` is server-only: never prefix it with `NEXT_PUBLIC_` or commit it. Public environment variables are bundled at build time; restart the dev server or redeploy after changing them. `NEXT_PUBLIC_SITE_URL` documents the canonical site URL for your project configuration; browser-initiated auth uses the current origin.
+Only the Supabase URL and publishable/anon key are public. `GEMINI_API_KEY` is server-only; never prefix it with `NEXT_PUBLIC_`.
 
-2. Run supabase/migrations/202610030001_initial.sql once in Supabase SQL Editor. Alternatively, with Supabase CLI installed:
+### Supabase Setup
 
-Apply `supabase/migrations/202610030002_appointments.sql` as well to enable saved appointment tracking.
+1. Create a Supabase project and add the variables above to `.env.local`.
+2. Apply both migrations in `supabase/migrations/` in chronological order, either in the Supabase SQL editor or with the CLI:
 
-```sh
-supabase login
-supabase link --project-ref YOUR_PROJECT_REF
-supabase db push
-```
+   ```sh
+   supabase login
+   supabase link --project-ref YOUR_PROJECT_REF
+   supabase db push
+   ```
 
-3. In Authentication → URL Configuration set Site URL to http://localhost:3000 for local testing. Allow redirect URLs http://localhost:3000/auth/callback and http://localhost:3000/auth/callback?next=/reset-password. Add the equivalent exact production URLs when deploying.
-4. Enable Email authentication and email confirmation. For links that also work when opened in another browser, configure these email templates:
-   - Confirm signup link: `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=signup`
-   - Reset password link: `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery`
-   The standard Supabase PKCE redirect links are also supported through /auth/callback but require the initiating browser's verifier cookie. Templates using SiteURL go to that one environment; use a separate project or update SiteURL deliberately when testing local vs production.
-5. Configure SMTP for production email delivery. Match the Supabase minimum password length to the UI's 12 characters.
-6. Restart the app. Sign up, confirm email, sign in, open /app/settings, sign out, and test forgot-password → email → reset → sign in with the new password.
+3. Enable Email authentication and configure the Site URL and redirect URLs for your local or deployed origin.
+4. For cross-browser confirmation and recovery links, use Supabase token-hash email templates that point to `/auth/confirm`.
 
-Private PDFs use `plan-documents/<user-id>/<document-id>-<filename>.pdf` (the object path starts with the authenticated user ID). The migration allows only PDFs up to 10 MiB. Text-based PDFs are parsed with PDF.js, then Gemini returns a Zod-validated, unconfirmed candidate with confidence and verified page quotes. Scanned PDFs and missing Gemini credentials fall back to manual entry. A user must confirm fields before the claims engine can use them. Create signed URLs only after authorization; never use public URLs.
+PlanPilot never requires a Supabase service-role key.
 
-For local AI extraction, create a Google AI Studio API key and add `GEMINI_API_KEY` to `.env.local`. The application never logs uploaded PDF text, sends monetary calculations to Gemini, or exposes the key in browser code.
+## Quality Checks
 
-## Routes
-
-| Route | Scaffold behavior |
-| --- | --- |
-| / | Home page |
-| /sign-in, /sign-up | Email/password forms |
-| /forgot-password, /reset-password | Recovery request and authenticated password update |
-| /auth/callback, /auth/confirm | PKCE and token-hash email callbacks |
-| /app | Protected dashboard, engine-calculated cost split, timing comparison, renewal notice, next-step guidance, and popup AI help |
-| /app/summary | Protected print-friendly plan, care, receipt, and schedule summary; use the browser's Save as PDF option |
-| /app/plans | Protected plan/care editor, private PDF upload, plain-language intake, and extraction review |
-| /app/scenarios | Saved scenario list |
-| /app/scenarios/[id] | Restore or delete a saved scenario |
-| /app/settings | Account email, recovery link, and data settings |
-| /app/dentists | In-network versus out-of-network quote comparison, plus insurer-directory handoff |
-| /app/assistant | Redirects to dashboard popup AI help |
-| /api/dentists | Authenticated, cached city/ZIP dentist search via Nominatim and Overpass |
-| /api/appointments | Owner-scoped appointment list/save/delete |
-| /api/ai/chat | Authenticated AI guide with read-only confirmed plan/procedure context and deterministic receipt totals |
-| /api/ai/extract-care | Authenticated Gemini drafting of user-described care fields; user must review and save |
-| /api/documents/upload | Authenticated private PDF upload and extraction |
-| /api/documents | Authenticated private document metadata list/delete |
-| /api/ai/extract-plan | Authenticated Gemini extraction from a stored document or supplied text |
-| /api/ai/explain | Typed receipt-reference explanation selection |
-| /api/plans | Authenticated plan CRUD |
-| /api/procedures | Authenticated procedure CRUD |
-| /api/scenarios | Authenticated scenario save/list/delete |
-
-API status codes: 503 when Supabase or Gemini is absent; 401 for unauthenticated callers; 422 when a document cannot be safely extracted. The upload route stores PDFs only in the private, owner-scoped bucket.
-
-## Team handoff
-
-**For consistent UI:** read [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md). It includes the visual contract, component examples and a copy-paste prompt for any teammate's AI. The single token source is src/styles/theme.css. Run npm run theme:check; GitHub CI checks for common hardcoded colors automatically. AGENTS.md and CODEX_START_PROMPT.md direct coding agents to the same system.
-
-Start with AGENTS.md, CODEX_START_PROMPT.md, ARCHITECTURE.md and docs/STATUS.md. PLANPILOT_CODEX_MASTER_SPEC.md is the authoritative full product specification; the current scaffold milestone is intentionally smaller. Shared schemas live in src/lib/schemas. Feature folder README files identify future work without pretending it is implemented.
-
-## Checks
+Run these before submitting:
 
 ```sh
+npm run theme:check
 npm run typecheck
 npm run lint
 npm run test
 npm run build
 ```
 
-Verified on October 4, 2026: theme check, typecheck, lint (zero warnings), all 33 Vitest tests, and production build passed. The public home page, authenticated plans editor, and extraction-review UI were checked in the browser. Live Gemini extraction requires a configured key.
+Tests cover the shared schemas, claim waterfall, annual maximum and deductible behavior, benefit-year reset, network accounting, frequency limits, schedule feasibility, optimizer, AI-output safety boundaries, and renewal reminders.
 
-Tests cover money/schema boundaries and redirect validation. Live auth, recovery email, database migration and two-account RLS/storage verification require a configured Supabase project. Check that account A cannot read/update account B's rows, reference B's documents/plans, or read B's storage paths before releasing persistence features.
+## Project Map
+
+```text
+src/app/                 Routes, protected workspace, and API handlers
+src/components/          UI and accessible client interactions
+src/lib/schemas/         Shared Zod contracts and inferred types
+src/lib/insurance/       Pure deterministic claims and benefit-rule logic
+src/lib/optimization/    Feasibility checks and bounded schedule search
+src/lib/ai/              Server-only extraction and safe explanation helpers
+src/lib/supabase/        Browser/server Supabase clients and configuration
+src/store/               In-memory workspace state
+supabase/migrations/     Owner-scoped schema, RLS, and private storage rules
+tests/                   Vitest coverage for core behavior
+```
+
+## Safety and Current Limits
+
+- Estimates depend on user-confirmed plan rules and user-supplied dentist quotes or allowed amounts. For a few common CDT codes, a typed illustrative 2026 national benchmark is available as a clearly labeled fallback. It is not FAIR Health, a carrier rate, a live network feed, or a final price.
+- A user must confirm extracted plan fields before the claims engine uses them. Uploaded PDF text is treated as untrusted data and is never executed.
+- AI has no write access and does not calculate money or select clinical timing.
+- The current contract targets PPO plans. Unsupported plan rules must remain explicit assumptions rather than silently guessed behavior.
+- The app has no appointment booking, insurer claim submission, live insurer pricing/network integration, or outbound reminder delivery.
+- A live release still needs configured Supabase acceptance testing with two accounts to confirm database and storage isolation end to end.
 
 ## Deployment
 
-Import this Git repository in Vercel with the Next.js preset. Add the public Supabase variables and canonical site URL; apply the migration and configure Supabase production Site URL/redirect allowlist/email templates. Run a production build and the auth smoke test. No deployment has been performed by the scaffold.
-
-The repository contains no real patient data or external AI keys. Financial outputs remain deterministic engine results; Gemini only proposes document fields and prose-free structured data.
-
-When a dentist quote is not available, the care form can use a clearly labeled offline benchmark for common CDT codes (see `src/lib/insurance/reference-costs.ts`). Benchmark amounts are planning estimates, not live FAIR Health, carrier, or network rates; replace them with the dentist's billed and allowed amounts before relying on a result.
-
-## Current connection and theme
-
-The local project is connected through ignored .env.local. Read-only Supabase checks confirmed email signup and email confirmation are enabled, and all five tables exist with anonymous reads denied. No service-role credential is used. Teammates must create their own .env.local from .env.example; local credentials are not committed. The user reported the migration succeeded. Account creation, confirmation/recovery delivery and authenticated two-user database isolation remain manual acceptance checks.
-
-The visual direction is the user's selected Solar Dusk palette from tweakcn, with compact Geist body text and restrained serif headings. DESIGN_SYSTEM.md is authoritative. Home, auth, dashboard, and receipts share src/styles/theme.css.
-
-Find care compares user-supplied in-network and out-of-network dentist quotes using the same deterministic claims engine as the dashboard. It does not have a live carrier fee or network feed; users must verify each provider's participation and allowed amount with the insurer. The prior map and appointment APIs remain in the codebase for compatibility, but they are no longer linked from Find care. No appointment booking or outbound reminder delivery is implemented. The dashboard shows an in-app renewal notice when confirmed remaining benefits are within 60 days of the plan-year reset. Network-specific coverage percentages are not yet modeled.
-
-### Email-link troubleshooting
-
-The Next.js server must have outbound HTTPS access to Supabase; a sandbox that denies sockets prevents server-side code exchange even when the browser can sign up. Callback messages distinguish connectivity, missing verifier/browser context, missing parameters and expired tokens. Sign-in/sign-up offer confirmation resend. Standard PKCE links must be opened in the initiating browser (the Codex browser and Chrome do not share cookies). For cross-browser confirmation use the token-hash email templates above. A Supabase confirmation can succeed before the app's code exchange fails, so try email/password sign-in first. Never paste confirmation tokens or complete email links into logs or chats.
+Deploy with the Next.js preset, then configure the public Supabase values, canonical `NEXT_PUBLIC_SITE_URL`, and optional server-only Gemini key. Apply the migrations to the production Supabase project and add the production authentication redirect URLs. Run the quality checks above and verify sign-up, confirmation, sign-in, private upload, and two-account isolation before release.

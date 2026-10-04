@@ -1,10 +1,7 @@
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { extractPdfText } from "@/lib/documents/pdf-text";
-import {
-  AiNotConfiguredError,
-  extractPlanFromText,
-} from "@/lib/ai/extract";
+import { AiNotConfiguredError, extractPlanFromText } from "@/lib/ai/extract";
 
 export const runtime = "nodejs";
 
@@ -21,13 +18,23 @@ export async function POST(request: Request) {
   const supabase = await createClient();
   if (!supabase)
     return Response.json(
-      { error: { code: "NOT_CONFIGURED", message: "Account services are not configured." } },
+      {
+        error: {
+          code: "NOT_CONFIGURED",
+          message: "Account services are not configured.",
+        },
+      },
       { status: 503 },
     );
   const { data: userData, error: authError } = await supabase.auth.getUser();
   if (authError || !userData.user)
     return Response.json(
-      { error: { code: "UNAUTHENTICATED", message: "Sign in to extract a plan." } },
+      {
+        error: {
+          code: "UNAUTHENTICATED",
+          message: "Sign in to extract a plan.",
+        },
+      },
       { status: 401 },
     );
 
@@ -36,7 +43,12 @@ export async function POST(request: Request) {
     body = requestSchema.parse(await request.json());
   } catch {
     return Response.json(
-      { error: { code: "INVALID_REQUEST", message: "Provide a documentId or plan text." } },
+      {
+        error: {
+          code: "INVALID_REQUEST",
+          message: "Provide a documentId or plan text.",
+        },
+      },
       { status: 400 },
     );
   }
@@ -50,23 +62,44 @@ export async function POST(request: Request) {
         .from("documents")
         .select("id,filename,storage_path")
         .eq("id", body.documentId)
+        .eq("user_id", userData.user.id)
         .single();
       if (result.error || !result.data)
         return Response.json(
-          { error: { code: "DOCUMENT_NOT_FOUND", message: "That plan document is not available." } },
+          {
+            error: {
+              code: "DOCUMENT_NOT_FOUND",
+              message: "That plan document is not available.",
+            },
+          },
           { status: 404 },
         );
       document = result.data;
-      const download = await supabase.storage.from("plan-documents").download(document.storage_path);
+      const download = await supabase.storage
+        .from("plan-documents")
+        .download(document.storage_path);
       if (download.error || !download.data)
         return Response.json(
-          { error: { code: "DOCUMENT_UNAVAILABLE", message: "The private plan document could not be opened." } },
+          {
+            error: {
+              code: "DOCUMENT_UNAVAILABLE",
+              message: "The private plan document could not be opened.",
+            },
+          },
           { status: 502 },
         );
-      const extracted = await extractPdfText(new Uint8Array(await download.data.arrayBuffer()));
+      const extracted = await extractPdfText(
+        new Uint8Array(await download.data.arrayBuffer()),
+      );
       if (extracted.isScanned) {
-        await supabase.from("documents").update({ extraction_status: "failed" }).eq("id", document.id);
-        return Response.json({ manualRequired: true, message: "This scanned PDF needs manual entry." });
+        await supabase
+          .from("documents")
+          .update({ extraction_status: "failed" })
+          .eq("id", document.id);
+        return Response.json({
+          manualRequired: true,
+          message: "This scanned PDF needs manual entry.",
+        });
       }
       text = extracted.text;
       pages = extracted.pages;
@@ -77,16 +110,31 @@ export async function POST(request: Request) {
       documentId: body.documentId,
     });
     if (document)
-      await supabase.from("documents").update({ extraction_status: "extracted" }).eq("id", document.id);
+      await supabase
+        .from("documents")
+        .update({ extraction_status: "extracted" })
+        .eq("id", document.id);
     return Response.json({ extraction, manualRequired: false });
   } catch (error) {
     if (error instanceof AiNotConfiguredError)
       return Response.json(
-        { error: { code: "AI_NOT_CONFIGURED", message: "The AI system is not configured. Use manual entry for now." } },
+        {
+          error: {
+            code: "AI_NOT_CONFIGURED",
+            message:
+              "The AI system is not configured. Use manual entry for now.",
+          },
+        },
         { status: 503 },
       );
     return Response.json(
-      { error: { code: "EXTRACTION_FAILED", message: "Plan extraction failed. Use manual entry and verify the PDF." } },
+      {
+        error: {
+          code: "EXTRACTION_FAILED",
+          message:
+            "Plan extraction failed. Use manual entry and verify the PDF.",
+        },
+      },
       { status: 422 },
     );
   }

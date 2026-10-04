@@ -8,7 +8,10 @@ import {
 import { benefitYearForDate } from "./benefit-year";
 import { resolveNetworkAmounts } from "./network";
 import { percentageOfCents, sumCents } from "./rounding";
-import { frequencyViolationForProcedure, frequencyRuleMatches } from "./coverage-rules";
+import {
+  frequencyViolationForProcedure,
+  frequencyRuleMatches,
+} from "./coverage-rules";
 
 export interface ClaimsCalculation {
   receipts: ClaimReceipt[];
@@ -96,7 +99,10 @@ export function calculateClaims({
             : plan.annualMaximumCents,
       });
     const yearState = state.get(year)!;
-    const network = resolveNetworkAmounts(procedure, plan.networkRules?.outOfNetworkBalanceBilling ?? true);
+    const network = resolveNetworkAmounts(
+      procedure,
+      plan.networkRules?.outOfNetworkBalanceBilling ?? true,
+    );
     warnings.push(
       ...network.warnings.map((warning) => `${procedure.name}: ${warning}`),
     );
@@ -188,11 +194,15 @@ export function calculateClaims({
       assumptions: [
         ...network.warnings,
         ...(procedure.costSource === "reference-benchmark"
-          ? ["Fees use a reference benchmark because a dentist quote was not supplied; verify the actual billed and allowed amounts."]
+          ? [
+              "Fees use a reference benchmark because a dentist quote was not supplied; verify the actual billed and allowed amounts.",
+            ]
           : []),
         ...(covered
           ? []
-          : ["Procedure marked as not covered by a plan rule override."]),
+          : [
+              "This procedure is not covered at the selected date under the confirmed plan rules.",
+            ]),
       ],
     });
     receipts.push(receipt);

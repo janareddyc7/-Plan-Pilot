@@ -15,6 +15,7 @@ export default async function Layout({
   const planResult = await supabase
     .from("dental_plans")
     .select("id,user_id,rules,source_document_id")
+    .eq("user_id", data.claims.sub)
     .order("updated_at", { ascending: false })
     .limit(1);
   const planRow = planResult.data?.[0] as Record<string, unknown> | undefined;
@@ -32,6 +33,7 @@ export default async function Layout({
       .from("procedures")
       .select("details")
       .eq("plan_id", parsedPlan.data.id)
+      .eq("user_id", data.claims.sub)
       .order("created_at", { ascending: true });
     const procedures = (procedureResult.data ?? []).flatMap((row) => {
       const parsed = procedureSchema.safeParse(row.details);

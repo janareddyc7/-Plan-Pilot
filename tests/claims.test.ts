@@ -38,6 +38,22 @@ describe("claims engine", () => {
     expect(result.receipts[0].annualMaxCapReduction).toBe(11000);
     expect(result.receipts[0].patientPayment).toBe(19000);
   });
+
+  it("attributes non-coverage to confirmed rules instead of a manual override", () => {
+    const result = calculateClaims({
+      plan: {
+        ...devFixture.plan,
+        waitingPeriods: [{ serviceClass: "basic", eligibleFrom: "2027-01-01" }],
+      },
+      procedures: [devFixture.procedures[1]],
+      schedule: devFixture.originalSchedule,
+    });
+    expect(result.receipts[0].finalInsurerPayment).toBe(0);
+    expect(result.receipts[0].assumptions).toContain(
+      "This procedure is not covered at the selected date under the confirmed plan rules.",
+    );
+    expect(result.receipts[0].assumptions.join(" ")).not.toContain("override");
+  });
   it("calculates deterministic integer-cent receipts", () => {
     const result = calculateClaims({
       plan: devFixture.plan,

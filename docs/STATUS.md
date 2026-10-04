@@ -23,8 +23,11 @@ Implemented:
   Supabase project on October 3, 2026; teammates must apply it to other projects.
 - Authenticated AI benefits chat for general explanations and navigation.
   It receives a scoped read-only snapshot of the signed-in user's confirmed plan,
-  procedures, and deterministic calculation summary; it never receives raw PDFs,
-  storage paths, secrets, or write access.
+  procedures, receipt assumptions, benefit-year usage, and deterministic calculation
+  summary; it clearly separates plan-only remaining benefits from remaining benefits
+  after saved care. It never receives raw PDFs, storage paths, secrets, or write access.
+  The dashboard chat also supports optional browser speech-to-text with an editable
+  transcript; audio is not stored or uploaded by PlanPilot, and typed input remains the fallback.
 - A compact dashboard-only chat popup replaces the assistant sidebar route; settings
   is account-focused rather than a separate guide. Old assistant links redirect.
 - Plain-language plan text and care descriptions can be interpreted by Gemini into

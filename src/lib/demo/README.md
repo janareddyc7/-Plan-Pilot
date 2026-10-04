@@ -1,1 +1,0 @@
-The typed synthetic Dev fixture supplies inputs only. Call `calculateDevScenario()` to derive receipts and totals; no savings or financial result is hardcoded. It intentionally uses explicit 2026 plan assumptions and a 2027 benefit-year example rather than proposal narrative totals.

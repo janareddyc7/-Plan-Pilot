@@ -1,1 +1,1 @@
-Zustand is installed for the future simulator store. Keep original/current/optimized schedules separate. Persist only unsaved guest drafts/preferences locally.
+Zustand stores the active authenticated workspace in memory. Keep original/current/optimized schedules separate; Supabase remains canonical for saved plans, procedures, and scenarios.

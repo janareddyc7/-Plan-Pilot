@@ -6,6 +6,7 @@ import { ArrowRight, RotateCcw, CalendarDays, Check, FileUp, Sparkles } from "lu
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { benefitYearForDate } from "@/lib/insurance/benefit-year";
+import { renewalReminder } from "@/lib/insurance/renewal-reminder";
 import { calculateClaims } from "@/lib/insurance/claims";
 import { useSimulatorStore } from "@/store/simulator-store";
 import { ProcedureTimeline } from "@/components/simulator/procedure-timeline";
@@ -52,6 +53,7 @@ export function Dashboard() {
     displayed.benefitsRemainingByYear[year] ??
     plan.annualMaximumCents - plan.alreadyUsedMaximumCents;
   const used = plan.annualMaximumCents - remaining;
+  const reminder = renewalReminder(plan, remaining);
   const baseline = calculateClaims({
     plan,
     procedures,
@@ -72,7 +74,7 @@ export function Dashboard() {
       </div>
     );
   }
-  if (!hasPlan) return <WorkspaceStart />;
+  if (!hasPlan || !plan.isConfirmed) return <WorkspaceStart />;
   async function saveScenario() {
     setSaving(true);
     setSaveMessage(undefined);
@@ -148,23 +150,20 @@ export function Dashboard() {
         </div>
       </div>
       {saveMessage && <p role="status" className="text-xs text-primary">{saveMessage}</p>}
+      {reminder && <Card className="flex flex-wrap items-center justify-between gap-3 border-primary/30 bg-accent/20 p-4"><div><p className="text-xs font-medium">Your benefits renew in {reminder.daysLeft} days</p><p className="mt-1 text-xs text-muted-foreground">{money(remaining)} remains in this benefit year. Unused benefits may expire; check your plan and ask your dentist whether any care is appropriate before {reminder.renewalDate}.</p></div><Button asChild variant="outline"><Link href="/app/plans">Review plan</Link></Button></Card>}
       {procedures.length > 0 ? (
         <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
           <Metric
-            label="Original estimate"
-            value={money(baseline.totals.patientPaymentCents)}
-            detail="Starting schedule"
-          />
-          <Metric
-            label={recommended ? "Recommended estimate" : "Current estimate"}
-            value={money(displayed.totals.patientPaymentCents)}
-            detail="Your out-of-pocket cost"
-          />
-          <Metric
-            label="Plan contribution"
+            label="Insurance pays"
             value={money(displayed.totals.insurerPaymentCents)}
-            detail="Estimated insurance payment"
+            detail="Estimated plan payment"
           />
+          <Metric
+            label="You pay"
+            value={money(displayed.totals.patientPaymentCents)}
+            detail={recommended ? "Recommended schedule" : "Current schedule"}
+          />
+          <Metric label="Starting estimate" value={money(baseline.totals.patientPaymentCents)} detail="Original schedule · your share" />
           <Metric
             label="Benefits remaining"
             value={money(remaining)}
@@ -276,7 +275,7 @@ export function Dashboard() {
               <div
                 className="h-full rounded-full bg-primary"
                 style={{
-                  width: `${Math.min(100, (used / plan.annualMaximumCents) * 100)}%`,
+                  width: `${plan.annualMaximumCents > 0 ? Math.min(100, (used / plan.annualMaximumCents) * 100) : 0}%`,
                 }}
               />
             </div>
@@ -332,44 +331,51 @@ export function Dashboard() {
 
 function WorkspaceStart() {
   return (
-    <div className="mx-auto max-w-4xl space-y-8 py-8 lg:py-16">
-      <div className="max-w-2xl">
+    <div className="mx-auto max-w-4xl space-y-8 py-6 lg:py-10">
+      <div className="max-w-3xl">
         <p className="eyebrow text-primary">Your workspace</p>
-        <h1 className="mt-4 font-serif text-4xl leading-tight tracking-tight md:text-5xl">
-          Start with the plan you actually have.
+        <h1 className="mt-4 font-sans text-[clamp(1.75rem,3.8vw,3.25rem)] font-medium leading-[1.12] tracking-[-0.045em]">
+          <span className="block">Start with the plan</span>
+          <span className="block text-primary">you actually have.</span>
         </h1>
-        <p className="mt-4 max-w-xl text-sm leading-7 text-muted-foreground">
+        <p className="mt-5 max-w-lg text-sm leading-6 text-muted-foreground">
           Add your benefit summary or enter the rules manually. PlanPilot will only calculate once your inputs are confirmed.
         </p>
       </div>
       <div className="grid gap-4 md:grid-cols-2">
-        <Card className="p-6">
-          <div className="flex size-10 items-center justify-center rounded-full bg-secondary text-primary">
-            <FileUp size={18} />
+        <Card className="group flex flex-col rounded-xl border-primary/25 bg-card p-6 shadow-control transition-colors hover:border-primary/50 sm:p-7">
+          <div className="flex items-center justify-between">
+            <div className="flex size-10 items-center justify-center rounded-lg border border-primary/15 bg-accent/50 text-primary">
+              <FileUp size={18} />
+            </div>
+            <span className="font-mono text-[10px] tracking-[0.18em] text-muted-foreground">01</span>
           </div>
-          <h2 className="mt-5 font-serif text-2xl">Upload your summary</h2>
-          <p className="mt-2 text-xs leading-6 text-muted-foreground">
+          <h2 className="mt-6 text-xl font-medium leading-tight tracking-tight">Upload your summary</h2>
+          <p className="mt-3 max-w-sm text-[13px] leading-6 text-muted-foreground">
             Upload a text-based PDF from your insurer. We’ll show the extracted fields and page references for you to confirm.
           </p>
-          <Button asChild className="mt-5">
+          <Button asChild className="mt-6 self-start">
             <Link href="/app/plans">Add a plan <ArrowRight size={14} /></Link>
           </Button>
         </Card>
-        <Card className="p-6">
-          <div className="flex size-10 items-center justify-center rounded-full bg-secondary text-primary">
-            <Sparkles size={18} />
+        <Card className="group flex flex-col rounded-xl border-border bg-background p-6 shadow-none transition-colors hover:border-primary/40 sm:p-7">
+          <div className="flex items-center justify-between">
+            <div className="flex size-10 items-center justify-center rounded-lg border border-border bg-muted/60 text-primary">
+              <Sparkles size={18} />
+            </div>
+            <span className="font-mono text-[10px] tracking-[0.18em] text-muted-foreground">02</span>
           </div>
-          <h2 className="mt-5 font-serif text-2xl">Use the guided setup</h2>
-          <p className="mt-2 text-xs leading-6 text-muted-foreground">
-            Enter the annual maximum, deductible, coverage, and renewal date. You can save the plan when it matches your benefits.
+          <h2 className="mt-6 text-xl font-medium leading-tight tracking-tight">Describe your coverage</h2>
+          <p className="mt-3 max-w-sm text-[13px] leading-6 text-muted-foreground">
+            Write your plan rules in plain words. Review Gemini’s suggestions, fill any gaps, and save only when the details match your benefits.
           </p>
-          <Button asChild variant="outline" className="mt-5">
-            <Link href="/app/plans">Open plan setup <ArrowRight size={14} /></Link>
+          <Button asChild variant="outline" className="mt-6 self-start">
+            <Link href="/app/plans">Describe your plan <ArrowRight size={14} /></Link>
           </Button>
         </Card>
       </div>
-      <p className="text-xs text-muted-foreground">
-        Need help? The <Link className="text-primary underline underline-offset-4" href="/app/settings">Guide & settings</Link> page explains the workflow and what each estimate means.
+      <p className="border-t border-border/70 pt-5 text-xs leading-6 text-muted-foreground">
+        Need help? Ask PlanPilot using the small button in the corner. The assistant explains the workflow while the claims engine computes every estimate.
       </p>
     </div>
   );

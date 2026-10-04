@@ -2,19 +2,19 @@
 
 Next.js App Router, React, strict TypeScript and Tailwind v4 form one application. Geist fonts are installed locally through the geist package. UI foundations use the shadcn new-york convention, Radix Slot and lucide-react. Forms use React Hook Form with shared Zod validation. The lockfile pins the resolved dependency graph.
 
-Current design override: Vintage Paper from tweakcn. Tokens live in src/styles/theme.css, mapped by globals.css. Source: https://github.com/jnsahaj/tweakcn/blob/main/utils/theme-presets.ts. Geist body text and Georgia editorial headings adapt the preset for compact application screens. DESIGN_SYSTEM.md is the current visual contract.
+Current design override: Solar Dusk from tweakcn. Tokens live in src/styles/theme.css, mapped by globals.css. Geist body text and Georgia editorial headings adapt the preset for compact application screens. DESIGN_SYSTEM.md is the current visual contract.
 
 ## Boundaries
 
 Theme values now live in src/styles/theme.css; globals.css imports them and exposes Tailwind utilities. DESIGN_SYSTEM.md owns the visual contract. UI primitives are shared through components/ui. The theme:check script in CI catches common raw colors outside the token file.
 
-- src/app: routes and server layouts. Public home/demo; auth group; protected /app area. API placeholders deliberately return 503, 401 or 501.
+- src/app: routes and server layouts. Public home; auth group; protected /app area. API routes enforce authentication and return explicit failure codes.
 - src/components: presentation and client interactions. Feature folders are reserved for future implementation.
 - src/lib/schemas: strict shared contracts; exported inferred TypeScript types. Never duplicate contracts in routes or components.
 - src/lib/supabase: browser/server cookie clients. src/proxy.ts refreshes and verifies sessions; server layouts and future route handlers independently verify authorization.
 - src/lib/auth: safe local redirects. /auth/callback handles PKCE codes; /auth/confirm handles token-hash email confirmation and recovery links.
 - src/lib/insurance and src/lib/optimization: reserved pure deterministic modules. No network, React, environment variables or AI dependencies.
-- src/store: reserved Zustand client state. Persist only guest drafts and preferences; account records belong in Supabase.
+- src/store: Zustand client state for the active account workspace. Account records belong in Supabase.
 - supabase/migrations: versioned SQL. Owner-scoped RLS and composite foreign keys prevent cross-account references.
 
 ## Contract decisions

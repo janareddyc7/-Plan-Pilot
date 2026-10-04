@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { calculateDevScenario, devFixture } from "@/lib/demo/dev-fixture";
+import { calculateDevScenario, devFixture } from "./fixtures/dev-fixture";
 
-describe("Dev fixture", () => {
+describe("calculation fixture", () => {
   it("contains complete typed inputs and derives all totals", () => {
     const result = calculateDevScenario();
     expect(devFixture.plan.isConfirmed).toBe(true);

@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { PlanUpload } from "@/components/insurance/plan-upload";
 import { PlanExtractionReview } from "@/components/ai/plan-extraction-review";
+import { PlanTextIntake } from "@/components/ai/plan-text-intake";
 import { PlanEditor } from "@/components/insurance/plan-editor";
 import { ProcedureEditor } from "@/components/simulator/procedure-editor";
 import { ProcedureCreateForm } from "@/components/simulator/procedure-create-form";
@@ -21,12 +22,13 @@ function PlanPage() {
   const [documentId, setDocumentId] = useState<string>();
   const [manualNote, setManualNote] = useState<string>();
   const [savedPlan, setSavedPlan] = useState(false);
+  const [editorVersion, setEditorVersion] = useState(0);
 
   if (!ready) {
     return <div className="py-12 text-sm text-muted-foreground">Loading your plan workspace…</div>;
   }
 
-  function confirmExtraction(candidate: AiExtractionResult, sourceDocumentId: string) {
+  function confirmExtraction(candidate: AiExtractionResult, sourceDocumentId?: string) {
     const data = candidate.extractedPlanData;
     const provenance = { ...plan.fieldProvenance };
     const aliases: Record<string, string> = {
@@ -39,10 +41,10 @@ function PlanPage() {
       if (field.source) provenance[aliases[field.field] ?? field.field] = field.source;
     }
     const changes: Partial<DentalPlan> = {
-      isConfirmed: true,
-      sourceDocumentId,
+      isConfirmed: false,
       fieldProvenance: provenance,
     };
+    if (sourceDocumentId) changes.sourceDocumentId = sourceDocumentId;
     if (data.name !== undefined) changes.name = data.name;
     if (data.annualMaximumCents !== undefined) changes.annualMaximumCents = data.annualMaximumCents;
     if (data.alreadyUsedMaximumCents !== undefined) changes.alreadyUsedMaximumCents = data.alreadyUsedMaximumCents;
@@ -61,9 +63,10 @@ function PlanPage() {
     if (data.benefitYearStartDay !== undefined) changes.benefitYearStartDay = data.benefitYearStartDay;
     if (data.preventiveCountsTowardMax !== undefined) changes.preventiveCountsTowardMax = data.preventiveCountsTowardMax;
     updatePlan(changes);
+    setEditorVersion((value) => value + 1);
     setExtraction(undefined);
     setDocumentId(undefined);
-    setManualNote("Plan fields confirmed. Review the calculation assumptions before relying on an estimate.");
+    setManualNote("Suggested fields added to the editor. Check missing rules, then confirm the complete plan before estimating costs.");
   }
 
   return (
@@ -95,7 +98,8 @@ function PlanPage() {
         }}
         onManualFallback={setManualNote}
       />
-      {extraction && documentId && (
+      <PlanTextIntake onExtraction={(candidate) => { setExtraction(candidate); setDocumentId(undefined); setManualNote(undefined); }} />
+      {extraction && (
         <PlanExtractionReview
           extraction={extraction}
           documentId={documentId}
@@ -107,7 +111,7 @@ function PlanPage() {
           {manualNote}
         </p>
       )}
-      <PlanEditor key={`${plan.id}-${plan.isConfirmed}-${plan.sourceDocumentId ?? "manual"}`} plan={plan} onSaved={() => setSavedPlan(true)} />
+      <PlanEditor key={`${plan.id}-${editorVersion}`} plan={plan} onSaved={() => setSavedPlan(true)} />
       <div>
         <p className="mb-3 text-[10px] uppercase tracking-widest text-muted-foreground">Care to model</p>
         {procedures.length === 0 && (

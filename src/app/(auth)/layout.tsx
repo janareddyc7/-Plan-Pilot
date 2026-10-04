@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, ArrowUpRight } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { Brand } from "@/components/shell/brand";
 
 export default function AuthLayout({
@@ -48,12 +48,6 @@ export default function AuthLayout({
               </div>
             ))}
           </div>
-          <Link
-            href="/demo"
-            className="mt-6 inline-flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground"
-          >
-            Explore the public preview <ArrowUpRight size={13} />
-          </Link>
         </aside>
         <section className="mx-auto w-full max-w-sm rounded-lg border border-border bg-card px-7 py-8 shadow-control sm:px-8">
           {children}

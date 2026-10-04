@@ -1,0 +1,64 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>
+endobj
+4 0 obj
+<< /Length 959 >>
+stream
+BT
+/F1 18 Tf
+50 750 Td
+(Harbor Dental Plan - Summary Excerpt) Tj
+/F1 10 Tf
+0 -28 Td
+(SYNTHETIC TEST DOCUMENT - NOT INSURANCE ADVICE) Tj
+0 -15 Td
+(Ambiguous fixture for unresolved-field and manual-review testing.) Tj
+0 -15 Td
+(PLAN OVERVIEW) Tj
+0 -15 Td
+(Plan type: PPO) Tj
+0 -15 Td
+(The plan has a yearly limit; see the certificate for the exact amount.) Tj
+0 -15 Td
+(A deductible may apply to certain services. The amount is not shown in this excerpt.) Tj
+0 -15 Td
+(Plan year begins on the employer renewal date.) Tj
+0 -15 Td
+(COVERAGE LANGUAGE) Tj
+0 -15 Td
+(Preventive services are covered at no charge when performed by a participating provider.) Tj
+0 -15 Td
+(Basic and major services are covered according to the schedule of benefits. Exact) Tj
+0 -15 Td
+(percentages and allowed amounts are not included on this page.) Tj
+0 -15 Td
+(REVIEW NOTE) Tj
+0 -15 Td
+(PlanPilot should leave unknown fields unresolved and require manual confirmation.) Tj
+0 -15 Td
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000001251 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+1321
+%%EOF

@@ -3,15 +3,15 @@ import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 export const buttonVariants = cva(
-  "inline-flex min-h-9 items-center justify-center gap-2 whitespace-nowrap rounded-md px-3.5 py-2 text-xs font-medium transition-all duration-150 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary disabled:opacity-50 disabled:cursor-not-allowed",
+  "inline-flex min-h-9 items-center justify-center gap-2 whitespace-nowrap rounded-md border px-3.5 py-1.5 text-xs font-medium leading-5 tracking-normal transition-[background-color,border-color,box-shadow,transform] duration-150 focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-ring active:translate-y-px disabled:pointer-events-none disabled:opacity-50 [&_svg]:shrink-0 [&_svg]:size-3.5",
   {
     variants: {
       variant: {
         default:
-          "border border-primary bg-primary text-primary-foreground hover:bg-foreground hover:border-foreground shadow-control",
+          "border-primary bg-primary text-primary-foreground shadow-control hover:border-primary/85 hover:bg-primary/90",
         outline:
-          "border border-border bg-card hover:bg-secondary hover:border-primary/40",
-        ghost: "hover:bg-muted",
+          "border-border bg-background text-foreground shadow-control hover:border-primary/40 hover:bg-accent/30",
+        ghost: "border-transparent hover:bg-muted",
       },
     },
     defaultVariants: { variant: "default" },

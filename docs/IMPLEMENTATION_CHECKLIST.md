@@ -20,11 +20,11 @@ This checklist is the working delivery sequence for the dashboard and full produ
 - [x] Add `tests/claims.test.ts`
 - [x] Verify golden cases and money invariants
 
-## Phase 2 — Typed Dev scenario ✅
+## Phase 2 — Typed calculation fixtures ✅
 
-- [x] Add `src/lib/demo/dev-fixture.ts`
+- [x] Add test-only calculation fixtures under `tests/fixtures`
 - [x] Add `tests/dev-fixture.test.ts`
-- [x] Define Dev’s plan and procedures completely
+- [x] Define deterministic plan and procedure test inputs completely
 - [x] Define allowed fees, classifications, dates, deductible balance, and annual maximum usage
 - [x] Define next-year and preventive assumptions explicitly
 - [x] Document any difference from the proposal’s reference totals
@@ -52,7 +52,7 @@ This checklist is the working delivery sequence for the dashboard and full produ
 - [x] Keep `originalSchedule`, `currentSchedule`, and `optimizedSchedule` separate
 - [x] Add selectors for receipts, totals, savings, benefits remaining, and warnings
 - [x] Recalculate when plan, procedure, fee, network, or date changes
-- [x] Persist only guest drafts and interface preferences locally
+- [x] Keep saved account data canonical in Supabase
 
 ## Phase 5 — First dashboard (core complete)
 
@@ -121,7 +121,7 @@ This checklist is the working delivery sequence for the dashboard and full produ
 - [x] Validate every request with Zod
 - [x] Verify owner identity in every server route
 - [ ] Test cross-user RLS isolation (requires two configured Supabase accounts)
-- [x] Keep guest demo independent of Supabase
+- [x] Keep production workspace independent of seeded data
 
 ## Phase 11 — Final quality pass
 
@@ -131,7 +131,7 @@ This checklist is the working delivery sequence for the dashboard and full produ
 - [x] Run `npm run test`
 - [x] Run `npm run build`
 - [ ] Test signup, email confirmation, sign-in, sign-out, and recovery
-- [ ] Test Dev demo and plan/procedure edits
+- [ ] Test plan/procedure edits with a configured account
 - [ ] Test schedule changes and receipt inspection
 - [ ] Test upload fallback
 - [ ] Test Supabase save/restore and RLS isolation
@@ -139,4 +139,4 @@ This checklist is the working delivery sequence for the dashboard and full produ
 
 ## Definition of done
 
-The dashboard is ready when the guest Dev scenario works without credentials, all displayed financial values come from the deterministic engine, schedule changes recalculate receipts, blocked moves explain why, uploads require confirmation, persistence is owner-scoped, and all project checks pass.
+The dashboard is ready when a configured account can add and confirm its own plan, all displayed financial values come from the deterministic engine, schedule changes recalculate receipts, blocked moves explain why, uploads require confirmation, persistence is owner-scoped, and all project checks pass.

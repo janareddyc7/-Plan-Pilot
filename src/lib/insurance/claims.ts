@@ -91,7 +91,7 @@ export function calculateClaims({
             : plan.annualMaximumCents,
       });
     const yearState = state.get(year)!;
-    const network = resolveNetworkAmounts(procedure);
+    const network = resolveNetworkAmounts(procedure, plan.networkRules?.outOfNetworkBalanceBilling ?? true);
     warnings.push(
       ...network.warnings.map((warning) => `${procedure.name}: ${warning}`),
     );

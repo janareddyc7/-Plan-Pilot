@@ -1,0 +1,84 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>
+endobj
+4 0 obj
+<< /Length 1448 >>
+stream
+BT
+/F1 18 Tf
+50 750 Td
+(Summit Dental Choice - Network Rules) Tj
+/F1 10 Tf
+0 -28 Td
+(SYNTHETIC TEST DOCUMENT - NOT INSURANCE ADVICE) Tj
+0 -15 Td
+(Edge-case fixture for deductible, balance-billing, and waiting-period extraction.) Tj
+0 -15 Td
+(PLAN OVERVIEW) Tj
+0 -15 Td
+(Plan type: PPO) Tj
+0 -15 Td
+(Annual maximum: $2,000 per individual) Tj
+0 -15 Td
+(Individual deductible: $100 per benefit year) Tj
+0 -15 Td
+(Deductible already used: $25) Tj
+0 -15 Td
+(Annual maximum already used: $400) Tj
+0 -15 Td
+(Renewal date: July 1) Tj
+0 -15 Td
+(COVERAGE BY SERVICE CLASS) Tj
+0 -15 Td
+(Preventive: 90%; preventive payments count toward the annual maximum) Tj
+0 -15 Td
+(Basic: 80% after the remaining deductible) Tj
+0 -15 Td
+(Major: 50% after the remaining deductible) Tj
+0 -15 Td
+(NETWORK AND ALLOWED AMOUNTS) Tj
+0 -15 Td
+(In-network claims use the negotiated allowed amount. Out-of-network claims use the plan) Tj
+0 -15 Td
+(allowed amount; the member is responsible for balance billing above that amount when) Tj
+0 -15 Td
+(applicable.) Tj
+0 -15 Td
+(WAITING PERIOD) Tj
+0 -15 Td
+(Major services are eligible beginning 2027-01-01. Basic and preventive services have no) Tj
+0 -15 Td
+(waiting period stated.) Tj
+0 -15 Td
+(TEST PROCEDURE EXAMPLES) Tj
+0 -15 Td
+(A basic filling may be billed at $200 with an allowed amount of $150. A major crown may) Tj
+0 -15 Td
+(be billed at $1,200 with an allowed amount of $900. These are testing examples only.) Tj
+0 -15 Td
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000001741 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+1811
+%%EOF

@@ -23,7 +23,7 @@ export async function explainReceipts({
   const receiptIds = receipts.map((receipt) => receipt.id);
   try {
     const { object } = await generateObject({
-      model: createGoogle({ apiKey })(process.env.GEMINI_MODEL || "gemini-2.5-flash-lite"),
+      model: createGoogle({ apiKey })(process.env.GEMINI_MODEL || "gemini-3.5-flash-lite"),
       schema: financialExplanationSchema,
       system: `You select safe explanation templates for a deterministic dental claim calculation.
 Never write prose, dollar amounts, coverage opinions, or medical advice. Return only typed template
@@ -51,4 +51,3 @@ Return no unsupported fields and do not include any money in the response.`,
     throw new AiExtractionError("The explanation could not be generated safely.");
   }
 }
-

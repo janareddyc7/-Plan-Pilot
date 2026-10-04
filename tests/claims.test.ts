@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { calculateClaims } from "@/lib/insurance/claims";
-import { devFixture } from "@/lib/demo/dev-fixture";
+import { devFixture } from "./fixtures/dev-fixture";
 
 describe("claims engine", () => {
   it("includes the deductible in patient responsibility", () => {

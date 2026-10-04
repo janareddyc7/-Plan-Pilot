@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { devFixture } from "@/lib/demo/dev-fixture";
+import { devFixture } from "./fixtures/dev-fixture";
 import { evaluateSchedule } from "@/lib/optimization/feasibility";
 import { optimizeSchedule } from "@/lib/optimization/optimizer";
 

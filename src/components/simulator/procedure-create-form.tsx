@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Save } from "lucide-react";
+import { Plus, Save, Sparkles } from "lucide-react";
 import { procedureSchema, type Procedure } from "@/lib/schemas";
 import { useSimulatorStore } from "@/store/simulator-store";
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,27 @@ export function ProcedureCreateForm({ planId, enabled }: { planId: string; enabl
   const [notes, setNotes] = useState("");
   const [message, setMessage] = useState<string>();
   const [saving, setSaving] = useState(false);
+  const [description, setDescription] = useState("");
+  const [interpreting, setInterpreting] = useState(false);
+  const [reviewNote, setReviewNote] = useState("");
+
+  async function interpret() {
+    setInterpreting(true); setMessage(undefined); setReviewNote("");
+    try {
+      const response = await fetch("/api/ai/extract-care", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ text: description.trim() }) });
+      const body = await response.json() as { candidate?: { name?: string; code?: string; serviceClass?: Procedure["serviceClass"]; networkStatus?: Procedure["networkStatus"]; billedFeeCents?: number; allowedFeeCents?: number }; error?: string };
+      if (!response.ok || !body.candidate) throw new Error(body.error || "Could not interpret that description.");
+      const value = body.candidate;
+      if (value.name) setName(value.name);
+      if (value.code) setCode(value.code);
+      if (value.serviceClass) setServiceClass(value.serviceClass);
+      if (value.networkStatus) setNetworkStatus(value.networkStatus);
+      if (value.billedFeeCents !== undefined) setBilled((value.billedFeeCents / 100).toFixed(2));
+      if (value.allowedFeeCents !== undefined) setAllowed((value.allowedFeeCents / 100).toFixed(2));
+      setReviewNote("Review every field below. Confirm the service class and prices with your insurer and dentist before saving.");
+    } catch (failure) { setMessage(failure instanceof Error ? failure.message : "Could not interpret that description."); }
+    finally { setInterpreting(false); }
+  }
 
   async function save(event: React.FormEvent) {
     event.preventDefault();
@@ -74,7 +95,7 @@ export function ProcedureCreateForm({ planId, enabled }: { planId: string; enabl
         <div><h2 className="text-sm font-medium">Add a procedure</h2><p className="mt-1 text-xs leading-5 text-muted-foreground">Use the estimate from your dentist or treatment plan. You can refine timing after it is saved.</p></div>
       </div>
       {!enabled ? <p className="mt-5 text-xs text-muted-foreground">Save your confirmed plan first, then add care details here.</p> : (
-        <form onSubmit={save} className="mt-6 grid gap-4 sm:grid-cols-2">
+        <><div className="mt-5 rounded-lg border border-border bg-background p-4"><label htmlFor="care-description" className="text-xs font-medium">Describe the care you need</label><p className="mt-1 text-xs text-muted-foreground">Write naturally. Include the quoted price and allowed fee if you have them.</p><textarea id="care-description" value={description} onChange={(event) => setDescription(event.target.value)} maxLength={4000} rows={3} placeholder="I need a crown. My dentist quoted…" className="mt-3 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"/><Button type="button" variant="outline" disabled={interpreting || description.trim().length < 10} onClick={() => void interpret()} className="mt-3"><Sparkles size={14}/>{interpreting ? "Interpreting…" : "Fill from description"}</Button></div>{reviewNote && <p role="status" className="mt-3 text-xs text-primary">{reviewNote}</p>}<form onSubmit={save} className="mt-6 grid gap-4 sm:grid-cols-2">
           <Field label="Procedure name" value={name} onChange={setName} placeholder="e.g. Crown" />
           <Field label="CDT code (optional)" value={code} onChange={setCode} placeholder="e.g. D2740" />
           <Select label="Service class" value={serviceClass} onChange={(value) => setServiceClass(value as Procedure["serviceClass"])} options={[["preventive", "Preventive"], ["basic", "Basic"], ["major", "Major"]]} />
@@ -85,7 +106,7 @@ export function ProcedureCreateForm({ planId, enabled }: { planId: string; enabl
           <Field label="Latest approved date (optional)" value={latestDate} onChange={setLatestDate} type="date" />
           <label className="text-[11px] text-muted-foreground sm:col-span-2">Notes (optional)<textarea value={notes} onChange={(event) => setNotes(event.target.value)} rows={2} className="mt-2 w-full border border-input bg-background px-3 py-2 text-xs text-foreground" /></label>
           <div className="flex items-center justify-between gap-3 sm:col-span-2"><p role="status" className="text-xs text-primary">{message}</p><Button type="submit" disabled={saving}><Save size={14} />{saving ? "Saving…" : "Save procedure"}</Button></div>
-        </form>
+        </form></>
       )}
     </Card>
   );

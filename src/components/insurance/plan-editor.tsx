@@ -28,6 +28,9 @@ export function PlanEditor({ plan, onSaved }: { plan: DentalPlan; onSaved?: (pla
   const [renewalDay, setRenewalDay] = useState(
     String(plan.benefitYearStartDay),
   );
+  const [deductibleAppliesTo, setDeductibleAppliesTo] = useState(plan.deductibleAppliesTo);
+  const [preventiveCountsTowardMax, setPreventiveCountsTowardMax] = useState(plan.preventiveCountsTowardMax);
+  const [outOfNetworkBalanceBilling, setOutOfNetworkBalanceBilling] = useState(plan.networkRules?.outOfNetworkBalanceBilling ?? true);
   const [saving, setSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string>();
   const [saveError, setSaveError] = useState<string>();
@@ -47,6 +50,9 @@ export function PlanEditor({ plan, onSaved }: { plan: DentalPlan; onSaved?: (pla
       },
       benefitYearStartMonth: Number(renewalMonth),
       benefitYearStartDay: Number(renewalDay),
+      deductibleAppliesTo,
+      preventiveCountsTowardMax,
+      networkRules: { outOfNetworkBalanceBilling, allowedAmountPolicy: plan.networkRules?.allowedAmountPolicy ?? "explicit" as const },
       isConfirmed: true as const,
     };
   }
@@ -65,7 +71,13 @@ export function PlanEditor({ plan, onSaved }: { plan: DentalPlan; onSaved?: (pla
       setSaveMessage(undefined);
       return;
     }
-    updatePlan(nextPlan());
+    const parsed = dentalPlanSchema.safeParse(nextPlan());
+    if (!parsed.success) {
+      setSaveError(parsed.error.issues[0]?.message ?? "Check the plan details.");
+      setSaveMessage(undefined);
+      return;
+    }
+    updatePlan(parsed.data);
     setSaveMessage("Rules updated for this session.");
     setSaveError(undefined);
   }
@@ -115,7 +127,7 @@ export function PlanEditor({ plan, onSaved }: { plan: DentalPlan; onSaved?: (pla
         </p>
       </div>
       <form onSubmit={save} className="mt-7 grid gap-5 sm:grid-cols-2">
-        <Field label="Plan name" value={name} onChange={setName} />
+        <Field label="Plan name" value={name} onChange={setName} type="text" />
         <Field
           label="Annual maximum"
           value={max}
@@ -162,12 +174,16 @@ export function PlanEditor({ plan, onSaved }: { plan: DentalPlan; onSaved?: (pla
           label="Renewal month"
           value={renewalMonth}
           onChange={setRenewalMonth}
+          step="1"
         />
         <Field
           label="Renewal day"
           value={renewalDay}
           onChange={setRenewalDay}
+          step="1"
         />
+        <fieldset className="sm:col-span-2 rounded-md border border-border p-4"><legend className="px-1 text-xs font-medium">Deductible applies to</legend><div className="mt-2 flex flex-wrap gap-5">{(["preventive", "basic", "major"] as const).map((key) => <label key={key} className="flex items-center gap-2 text-xs capitalize"><input type="checkbox" checked={deductibleAppliesTo[key]} onChange={(event) => setDeductibleAppliesTo({ ...deductibleAppliesTo, [key]: event.target.checked })} className="mt-0 size-4"/>{key}</label>)}</div><p className="mt-3 text-[11px] text-muted-foreground">Check only the service classes named in your plan. An unchecked class does not use your deductible in estimates.</p></fieldset>
+        <div className="sm:col-span-2 grid gap-3 sm:grid-cols-2"><label className="flex items-start gap-2 rounded-md border border-border p-3 text-xs"><input type="checkbox" checked={preventiveCountsTowardMax} onChange={(event) => setPreventiveCountsTowardMax(event.target.checked)} className="mt-0 size-4"/><span>Preventive payments count toward annual maximum</span></label><label className="flex items-start gap-2 rounded-md border border-border p-3 text-xs"><input type="checkbox" checked={outOfNetworkBalanceBilling} onChange={(event) => setOutOfNetworkBalanceBilling(event.target.checked)} className="mt-0 size-4"/><span>Out-of-network dentist may bill above allowed amount</span></label></div>
         <div className="sm:col-span-2 flex items-center justify-between border-t border-border pt-5">
           <p className="text-[11px] text-muted-foreground">
             Coverage is applied by service class. Confirm these values against your summary.
@@ -196,22 +212,26 @@ function Field({
   onChange,
   prefix,
   suffix,
+  type = "number",
+  step,
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
   prefix?: string;
   suffix?: string;
+  type?: "number" | "text";
+  step?: string;
 }) {
   return (
     <label className="text-[11px] text-muted-foreground">
       {label}
       <div className="relative">
         <Input
-          type="number"
-          min="0"
+          type={type}
+          min={type === "number" ? "0" : undefined}
           max={suffix ? "100" : undefined}
-          step={suffix ? "1" : "0.01"}
+          step={type === "number" ? step ?? (suffix ? "1" : "0.01") : undefined}
           value={value}
           onChange={(event) => onChange(event.target.value)}
           className={prefix ? "pl-7" : suffix ? "pr-8" : ""}

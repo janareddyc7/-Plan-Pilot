@@ -28,8 +28,8 @@ export function PlanExtractionReview({
   onConfirm,
 }: {
   extraction: AiExtractionResult;
-  documentId: string;
-  onConfirm: (extraction: AiExtractionResult, documentId: string) => void;
+  documentId?: string;
+  onConfirm: (extraction: AiExtractionResult, documentId?: string) => void;
 }) {
   const fields = flattenFields(extraction);
   const sourceByField = new Map(extraction.fields.map((field) => [field.field, field]));
@@ -64,7 +64,7 @@ export function PlanExtractionReview({
                   <p className="mt-1 text-sm">{formatValue(key, value)}</p>
                   {source?.source?.quote && (
                     <p className="mt-1 max-w-xl text-[10px] leading-4 text-muted-foreground">
-                      Page {source.source.page}: “{source.source.quote}”
+                      {source.source.page ? `Page ${source.source.page}: ` : "Your description: "}“{source.source.quote}”
                     </p>
                   )}
                 </div>

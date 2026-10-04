@@ -1,6 +1,6 @@
 # PlanPilot
 
-Dental benefits planning with a real account workspace, deterministic claim receipts, schedule comparisons, Supabase authentication, private PDF upload, Gemini-assisted plan extraction, and the shared Vintage Paper theme. A clearly labeled public preview is available at `/demo`; signed-in workspaces never seed demo data.
+Dental benefits planning with a real account workspace, deterministic claim receipts, schedule comparisons, Supabase authentication, private PDF upload, Gemini-assisted plan extraction, and the shared Solar Dusk theme. The production workspace uses only owner-scoped data.
 
 ## Local setup
 
@@ -12,7 +12,7 @@ cp .env.example .env.local
 npm run dev
 ```
 
-On PowerShell, use `Copy-Item .env.example .env.local`. Open http://localhost:3000. Home and /demo work without credentials; the protected workspace loads only the signed-in user’s saved plan and procedures. Do not commit .env.local.
+On PowerShell, use `Copy-Item .env.example .env.local`. Open http://localhost:3000, create an account, and start with your own benefits summary. The protected workspace loads only the signed-in user’s saved plan and procedures. Do not commit .env.local.
 
 ## Supabase setup
 
@@ -23,12 +23,14 @@ NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=YOUR_PUBLIC_KEY
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 GEMINI_API_KEY=YOUR_GOOGLE_AI_STUDIO_KEY
-GEMINI_MODEL=gemini-2.5-flash-lite
+GEMINI_MODEL=gemini-3.5-flash-lite
 ```
 
 No service-role key is needed. `GEMINI_API_KEY` is server-only: never prefix it with `NEXT_PUBLIC_` or commit it. Public environment variables are bundled at build time; restart the dev server or redeploy after changing them. `NEXT_PUBLIC_SITE_URL` documents the canonical site URL for your project configuration; browser-initiated auth uses the current origin.
 
 2. Run supabase/migrations/202610030001_initial.sql once in Supabase SQL Editor. Alternatively, with Supabase CLI installed:
+
+Apply `supabase/migrations/202610030002_appointments.sql` as well to enable saved appointment tracking.
 
 ```sh
 supabase login
@@ -53,15 +55,20 @@ For local AI extraction, create a Google AI Studio API key and add `GEMINI_API_K
 | Route | Scaffold behavior |
 | --- | --- |
 | / | Home page |
-| /demo | Clearly labeled public preview using synthetic inputs |
 | /sign-in, /sign-up | Email/password forms |
 | /forgot-password, /reset-password | Recovery request and authenticated password update |
 | /auth/callback, /auth/confirm | PKCE and token-hash email callbacks |
-| /app | Protected dashboard shell |
-| /app/plans | Protected plan editor, private PDF upload, and extraction review |
+| /app | Protected dashboard, engine-calculated cost split, timing comparison, renewal notice, and popup AI help |
+| /app/plans | Protected plan/care editor, private PDF upload, plain-language intake, and extraction review |
 | /app/scenarios | Saved scenario list |
 | /app/scenarios/[id] | Restore or delete a saved scenario |
-| /app/settings | Account email and recovery link |
+| /app/settings | Account email, recovery link, and data settings |
+| /app/dentists | In-network versus out-of-network quote comparison, plus insurer-directory handoff |
+| /app/assistant | Redirects to dashboard popup AI help |
+| /api/dentists | Authenticated, cached city/ZIP dentist search via Nominatim and Overpass |
+| /api/appointments | Owner-scoped appointment list/save/delete |
+| /api/ai/chat | Authenticated Gemini guide; no user plan or receipt details sent |
+| /api/ai/extract-care | Authenticated Gemini drafting of user-described care fields; user must review and save |
 | /api/documents/upload | Authenticated private PDF upload and extraction |
 | /api/documents | Authenticated private document metadata list/delete |
 | /api/ai/extract-plan | Authenticated Gemini extraction from a stored document or supplied text |
@@ -101,7 +108,9 @@ The repository contains no real patient data or external AI keys. Financial outp
 
 The local project is connected through ignored .env.local. Read-only Supabase checks confirmed email signup and email confirmation are enabled, and all five tables exist with anonymous reads denied. No service-role credential is used. Teammates must create their own .env.local from .env.example; local credentials are not committed. The user reported the migration succeeded. Account creation, confirmation/recovery delivery and authenticated two-user database isolation remain manual acceptance checks.
 
-The visual direction is the user's selected Vintage Paper palette from tweakcn, with compact Geist body text and restrained serif headings. DESIGN_SYSTEM.md is authoritative. Home, auth, dashboard, and receipts share src/styles/theme.css.
+The visual direction is the user's selected Solar Dusk palette from tweakcn, with compact Geist body text and restrained serif headings. DESIGN_SYSTEM.md is authoritative. Home, auth, dashboard, and receipts share src/styles/theme.css.
+
+Find care compares user-supplied in-network and out-of-network dentist quotes using the same deterministic claims engine as the dashboard. It does not have a live carrier fee or network feed; users must verify each provider's participation and allowed amount with the insurer. The prior map and appointment APIs remain in the codebase for compatibility, but they are no longer linked from Find care. No appointment booking or outbound reminder delivery is implemented. The dashboard shows an in-app renewal notice when confirmed remaining benefits are within 60 days of the plan-year reset. Network-specific coverage percentages are not yet modeled.
 
 ### Email-link troubleshooting
 

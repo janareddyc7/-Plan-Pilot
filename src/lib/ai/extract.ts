@@ -10,7 +10,7 @@ import {
 } from "@/lib/schemas/ai";
 import type { PdfPageText } from "@/lib/documents/pdf-text";
 
-const DEFAULT_MODEL = "gemini-2.5-flash-lite";
+const DEFAULT_MODEL = "gemini-3.5-flash-lite";
 const MAX_SOURCE_TEXT = 140_000;
 
 export class AiNotConfiguredError extends Error {
@@ -76,7 +76,7 @@ ${boundedText}${truncated ? "\n\n[DOCUMENT TRUNCATED BY APPLICATION]" : ""}`,
       maxRetries: 1,
     });
 
-    return normalizeExtraction(object, { pages, documentId, truncated });
+    return normalizeExtraction(object, { pages, documentId, truncated, plainText: pages.length === 0 ? boundedText : undefined });
   } catch (error) {
     if (error instanceof AiExtractionError) throw error;
     throw new AiExtractionError();
@@ -85,7 +85,7 @@ ${boundedText}${truncated ? "\n\n[DOCUMENT TRUNCATED BY APPLICATION]" : ""}`,
 
 function normalizeExtraction(
   raw: AiRawExtractionResult,
-  context: { pages: PdfPageText[]; documentId?: string; truncated: boolean },
+  context: { pages: PdfPageText[]; documentId?: string; truncated: boolean; plainText?: string },
 ): AiExtractionResult {
   const unresolvedItems = [...raw.unresolvedItems];
   if (context.truncated)
@@ -104,6 +104,10 @@ function normalizeExtraction(
   for (const [inputKey, outputKey] of monetaryFields) {
     const value = data[inputKey];
     if (value === undefined) continue;
+    if (context.plainText && !normalizeWhitespace(context.plainText).toLowerCase().includes(normalizeWhitespace(value).toLowerCase())) {
+      unresolvedItems.push(`${inputKey} was not found verbatim in your description; enter it manually.`);
+      continue;
+    }
     const cents = parseDollarString(value);
     if (cents === undefined) {
       unresolvedItems.push(`${inputKey} was not an unambiguous dollar amount; enter it manually.`);
@@ -111,8 +115,13 @@ function normalizeExtraction(
       extractedPlanData[outputKey] = cents;
     }
   }
-  if (data.coverageByClass) extractedPlanData.coverageByClass = data.coverageByClass;
-  if (data.deductibleAppliesTo) extractedPlanData.deductibleAppliesTo = data.deductibleAppliesTo;
+  if (data.coverageByClass) {
+    const grounded = Object.fromEntries(Object.entries(data.coverageByClass).filter(([, value]) =>
+      !context.plainText || new RegExp(`\\b${value}\\s*%`).test(context.plainText),
+    ));
+    if (Object.keys(grounded).length) extractedPlanData.coverageByClass = grounded;
+  }
+  if (data.deductibleAppliesTo && (!context.plainText || /deductible\s+(?:does\s+not\s+)?appl(?:y|ies)|exempt\s+from\s+(?:the\s+)?deductible/i.test(context.plainText))) extractedPlanData.deductibleAppliesTo = data.deductibleAppliesTo;
   if (data.networkRules) extractedPlanData.networkRules = data.networkRules;
   if (data.waitingPeriods) extractedPlanData.waitingPeriods = data.waitingPeriods;
   if (data.benefitYearStartMonth !== undefined)
@@ -123,10 +132,10 @@ function normalizeExtraction(
     extractedPlanData.preventiveCountsTowardMax = data.preventiveCountsTowardMax;
 
   const fields = raw.fields.map((field) => {
-    const source = normalizeSource(field.source, context.pages, context.documentId);
-    if (field.source && !source)
+    const source = normalizeSource(field.source, context.pages, context.documentId, context.plainText);
+    if (field.source && !source && !context.plainText)
       unresolvedItems.push(`The source quote for ${field.field} could not be verified on its cited page.`);
-    return { ...field, source };
+    return { ...field, confidence: context.plainText && !source ? "low" as const : field.confidence, source };
   });
 
   return aiExtractionResultSchema.parse({
@@ -152,8 +161,14 @@ function normalizeSource(
   source: { source: string; page?: number; quote?: string; note: string } | undefined,
   pages: PdfPageText[],
   documentId?: string,
+  plainText?: string,
 ) {
-  if (!source || source.source !== "document" || !source.page || !source.quote) return undefined;
+  if (!source?.quote) return undefined;
+  if (plainText) {
+    if (!normalizeWhitespace(plainText).toLowerCase().includes(normalizeWhitespace(source.quote).toLowerCase())) return undefined;
+    return { source: "manual" as const, quote: normalizeWhitespace(source.quote), note: "Quoted from your description." };
+  }
+  if (source.source !== "document" || !source.page) return undefined;
   const page = pages.find((candidate) => candidate.page === source.page);
   if (!page) return undefined;
   const pageText = normalizeWhitespace(page.text).toLowerCase();
@@ -171,4 +186,3 @@ function normalizeSource(
 function normalizeWhitespace(value: string) {
   return value.replace(/\s+/g, " ").trim();
 }
-

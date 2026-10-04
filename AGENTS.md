@@ -2,7 +2,7 @@
 
 Read README.md, ARCHITECTURE.md and docs/STATUS.md before editing. Read PLANPILOT_CODEX_MASTER_SPEC.md for product requirements. The current authorized milestone is the scaffold described in docs/STATUS.md; the full product specification does not authorize automatically building all future features.
 
-For any UI work, read DESIGN_SYSTEM.md first. The shared theme is PlanPilot Vintage Paper: src/styles/theme.css contains the tweakcn preset values and src/app/globals.css maps them to Tailwind. The user's latest theme request supersedes Perpetuity and the original master-spec palette. Use compact controls, serif editorial headings, Geist body text, and semantic colors. Reuse src/components/ui. Run npm run theme:check. Do not overwrite theme tokens when installing shadcn components.
+For any UI work, read DESIGN_SYSTEM.md first. The shared theme is PlanPilot Solar Dusk: src/styles/theme.css contains the tweakcn preset values and src/app/globals.css maps them to Tailwind. The user's latest theme request supersedes earlier palettes and the original master-spec palette. Use compact controls, Geist body text, restrained editorial headings, and semantic colors. Reuse src/components/ui. Run npm run theme:check. Do not overwrite theme tokens when installing shadcn components.
 
 - Keep one shared contract in src/lib/schemas. Coordinate changes before implementing downstream features.
 - All money is integer cents. Percentages are whole percentages (80 means 80%). AI never calculates money or decides clinical timing.

@@ -8,10 +8,10 @@ export const DEV_PROCEDURE_IDS = {
   crown: "10000000-0000-4000-8000-000000000013",
 } as const;
 
-/** Synthetic, confirmed inputs used by the guest demo. No result totals are stored here. */
+/** Test-only inputs for deterministic engine and optimizer coverage. Never shipped as account data. */
 export const devPlan: DentalPlan = {
   id: DEV_PLAN_ID,
-  name: "Dev's PPO plan",
+  name: "Test PPO plan",
   planType: "PPO",
   benefitYearStartMonth: 1,
   benefitYearStartDay: 1,
@@ -30,9 +30,9 @@ export const devPlan: DentalPlan = {
     {
       field: "annualMaximumCents",
       plausibleValues: [100000, 150000, 200000],
-      whyUnknown: "Synthetic preview keeps three illustrative annual maximum values for the value-of-information question.",
-      source: { source: "synthetic", note: "Illustrative Dev preview assumption." },
-      question: "What is your plan's annual maximum?",
+      whyUnknown: "Test input keeps several annual maximum values for value-of-information coverage.",
+      source: { source: "synthetic", note: "Test-only assumption." },
+      question: "What is the plan's annual maximum?",
     },
   ],
 };

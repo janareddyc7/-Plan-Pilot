@@ -1,11 +1,11 @@
-# PlanPilot — Vintage Paper
+# PlanPilot — Solar Dusk
 
-The user's latest selection is tweakcn **Vintage Paper**, replacing Perpetuity.
-Preset source: https://github.com/jnsahaj/tweakcn/blob/main/utils/theme-presets.ts (vintage-paper).
+The user's latest selection is tweakcn **Solar Dusk**, replacing Amber Minimal.
+The official tweakcn Solar Dusk color token set is the source of truth for the product palette.
 
 ## Shared theme
 
-- Raw colors and radius: src/styles/theme.css. This uses the preset's light palette.
+- Raw colors and radius: src/styles/theme.css. This uses the Solar Dusk light palette.
 - Tailwind mapping: src/app/globals.css.
 - UI primitives: src/components/ui. Extend these centrally.
 - References: home, auth layout, workspace, dashboard.
@@ -17,11 +17,11 @@ The palette follows the preset; typography is deliberately adapted for this comp
 Use local Geist for body and controls, Georgia for restrained editorial headings, and tabular numbers for financial results.
 Do not download a different font for each feature.
 
-- Page headings: serif, 28–32px; landing headline can reach 60px.
+- Page headings: 28–32px; onboarding uses medium-weight Geist up to 52px. Reserve serif for editorial accents.
 - Body: 12–14px. Secondary metadata: 10–11px.
-- Controls: 36–40px high. Keep accessible labels and visible focus.
+- Controls: 36px high, sentence case, 12px labels, subtle shadows. Keep accessible labels and visible focus.
 - Panels: thin borders, 4–8px radii, 16–20px padding; avoid oversized shadows.
-- Gaps: 12–20px. Dashboard sidebar: 196px, collapses to navigation on mobile.
+- Gaps: 12–20px. Dashboard sidebar: 224px, collapses to navigation on mobile.
 - Use warm paper surfaces and brown accents sparingly; no giant primary-colored marketing block in the workspace.
 
 ## Semantic roles
@@ -45,7 +45,7 @@ Run theme:check, typecheck, lint, test and build.
 
 ## Teammate AI prompt
 
-Read AGENTS.md, DESIGN_SYSTEM.md and docs/STATUS.md. Use the shared Vintage Paper
+Read AGENTS.md, DESIGN_SYSTEM.md and docs/STATUS.md. Use the shared Solar Dusk
 tokens and compact home/auth/dashboard patterns. Reuse the UI primitives.
 Keep all financial values derived from the engine. Do not invent a different
 palette, large headline treatment, or decorative AI card. Verify the actual UI

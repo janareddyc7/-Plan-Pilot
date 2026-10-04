@@ -166,8 +166,8 @@ export function AuthForm({
           className="mt-6 rounded-xl bg-muted p-4 text-sm leading-6 text-primary"
           role="status"
         >
-          Account access will be available once setup is complete. You can
-          explore the public preview now.
+          Account access will be available once Supabase setup is complete.
+          Contact the workspace administrator if this message persists.
         </p>
       )}
       <form onSubmit={submit} className="mt-6 space-y-4" noValidate>

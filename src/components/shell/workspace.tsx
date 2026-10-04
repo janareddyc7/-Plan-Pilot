@@ -6,7 +6,8 @@ import {
   FileText,
   FolderOpen,
   House,
-  BookOpen,
+  Settings,
+  MapPin,
 } from "lucide-react";
 import { Brand } from "./brand";
 import { SignOut } from "@/components/auth/sign-out";
@@ -16,8 +17,9 @@ import type { SimulatorInput } from "@/store/simulator-store";
 const links = [
   { href: "/app", label: "Overview", icon: LayoutDashboard },
   { href: "/app/plans", label: "My plan", icon: FileText },
+  { href: "/app/dentists", label: "Find care", icon: MapPin },
   { href: "/app/scenarios", label: "Saved scenarios", icon: FolderOpen },
-  { href: "/app/settings", label: "Guide & settings", icon: BookOpen },
+  { href: "/app/settings", label: "Settings", icon: Settings },
 ];
 export function Workspace({
   children,
@@ -66,20 +68,20 @@ export function Workspace({
         </div>
       </aside>
       <div className="min-w-0">
-        <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-border bg-background/95 px-5 backdrop-blur lg:px-8">
-          <div className="flex items-center gap-3 text-xs">
-            <span className="text-muted-foreground">Workspace</span>
+        <header className="sticky top-0 z-20 flex h-16 min-w-0 items-center justify-between gap-4 border-b border-border bg-background/95 px-5 backdrop-blur lg:px-8">
+          <div className="flex min-w-0 items-center gap-3 text-xs">
+            <span className="shrink-0 text-muted-foreground">Workspace</span>
             <span className="text-border">/</span>
-            <span>
+            <span className="truncate">
               {links.find((item) => item.href === path)?.label ?? "Overview"}
             </span>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex shrink-0 items-center gap-3">
             <Link
               href="/"
               className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"
             >
-              <House size={13} /> Home
+              <House size={13} /> <span className="hidden sm:inline">Home</span>
             </Link>
             <SignOut />
           </div>

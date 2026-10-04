@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { devFixture } from "@/lib/demo/dev-fixture";
+import { devFixture } from "./fixtures/dev-fixture";
 import { selectOneSmartQuestion, withFieldValue } from "@/lib/optimization/one-question";
 import { dentalPlanSchema } from "@/lib/schemas";
 
@@ -21,4 +21,3 @@ describe("One Smart Question", () => {
     expect(dentalPlanSchema.safeParse(plan).success).toBe(true);
   });
 });
-

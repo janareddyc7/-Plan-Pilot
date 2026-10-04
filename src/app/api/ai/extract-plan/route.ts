@@ -82,7 +82,7 @@ export async function POST(request: Request) {
   } catch (error) {
     if (error instanceof AiNotConfiguredError)
       return Response.json(
-        { error: { code: "AI_NOT_CONFIGURED", message: "Gemini is not configured. Use manual entry for now." } },
+        { error: { code: "AI_NOT_CONFIGURED", message: "The AI system is not configured. Use manual entry for now." } },
         { status: 503 },
       );
     return Response.json(

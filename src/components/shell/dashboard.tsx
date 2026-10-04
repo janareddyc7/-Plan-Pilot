@@ -367,7 +367,7 @@ function WorkspaceStart() {
           </div>
           <h2 className="mt-6 text-xl font-medium leading-tight tracking-tight">Describe your coverage</h2>
           <p className="mt-3 max-w-sm text-[13px] leading-6 text-muted-foreground">
-            Write your plan rules in plain words. Review Gemini’s suggestions, fill any gaps, and save only when the details match your benefits.
+            Write your plan rules in plain words. Review the AI system’s suggestions, fill any gaps, and save only when the details match your benefits.
           </p>
           <Button asChild variant="outline" className="mt-6 self-start">
             <Link href="/app/plans">Describe your plan <ArrowRight size={14} /></Link>

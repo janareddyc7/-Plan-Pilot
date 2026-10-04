@@ -1,1 +1,1 @@
-Plan upload, Gemini extraction review, confirmed plan editor, benefit progress and network comparison.
+Plan upload, AI extraction review, confirmed plan editor, benefit progress and network comparison.

@@ -41,7 +41,7 @@ export async function POST(request: Request) {
   } catch (explanationError) {
     if (explanationError instanceof AiNotConfiguredError)
       return Response.json(
-        { error: { code: "AI_NOT_CONFIGURED", message: "Gemini is not configured for explanations." } },
+        { error: { code: "AI_NOT_CONFIGURED", message: "The AI system is not configured for explanations." } },
         { status: 503 },
       );
     return Response.json(

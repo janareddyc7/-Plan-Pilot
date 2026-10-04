@@ -67,7 +67,7 @@ export function PlanUpload({
           </p>
           <h2 className="mt-2 font-serif text-2xl">Start with the document.</h2>
           <p className="mt-2 max-w-xl text-xs leading-5 text-muted-foreground">
-            Upload a text-based benefits PDF. Gemini will suggest fields with page quotes; nothing
+            Upload a text-based benefits PDF. The AI system will suggest fields with page quotes; nothing
             reaches the calculation engine until you confirm it.
           </p>
         </div>
@@ -94,4 +94,3 @@ export function PlanUpload({
     </Card>
   );
 }
-

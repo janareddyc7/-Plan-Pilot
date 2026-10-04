@@ -15,13 +15,13 @@ const MAX_SOURCE_TEXT = 140_000;
 
 export class AiNotConfiguredError extends Error {
   constructor() {
-    super("Gemini is not configured. Use manual plan entry or add GEMINI_API_KEY.");
+    super("The AI system is not configured. Use manual plan entry or add the server AI key.");
     this.name = "AiNotConfiguredError";
   }
 }
 
 export class AiExtractionError extends Error {
-  constructor(message = "Gemini could not extract plan rules.") {
+  constructor(message = "The AI system could not extract plan rules.") {
     super(message);
     this.name = "AiExtractionError";
   }

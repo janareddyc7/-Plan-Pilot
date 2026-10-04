@@ -12,7 +12,7 @@ export async function POST(request: Request) {
   if (error || !data.user) return Response.json({ error: "Sign in to describe care." }, { status: 401 });
   const parsed = requestSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return Response.json({ error: "Describe the care in a little more detail." }, { status: 400 });
-  if (!process.env.GEMINI_API_KEY) return Response.json({ error: "Gemini is not configured. Enter the care details manually." }, { status: 503 });
+  if (!process.env.GEMINI_API_KEY) return Response.json({ error: "The AI system is not configured. Enter the care details manually." }, { status: 503 });
   try {
     const { object } = await generateObject({
       model: createGoogle({ apiKey: process.env.GEMINI_API_KEY })(process.env.GEMINI_MODEL || "gemini-3.5-flash-lite"),
@@ -34,6 +34,6 @@ export async function POST(request: Request) {
     const code = object.code && source.includes(object.code.toLowerCase()) ? object.code : undefined;
     return Response.json({ candidate: { name: object.name, code, serviceClass, networkStatus, billedFeeCents, allowedFeeCents } });
   } catch {
-    return Response.json({ error: "Gemini could not interpret that description. Enter the care details manually." }, { status: 502 });
+    return Response.json({ error: "The AI system could not interpret that description. Enter the care details manually." }, { status: 502 });
   }
 }

@@ -111,7 +111,7 @@ export async function POST(request: Request) {
     await markFailed(supabase, documentId);
     const message =
       error instanceof AiNotConfiguredError
-        ? "Gemini is not configured yet. Your PDF is private and ready; enter the plan details manually for now."
+        ? "The AI system is not configured yet. Your PDF is private and ready; enter the plan details manually for now."
         : "The PDF was uploaded, but its plan rules need manual entry. Review the document and continue below.";
     return Response.json({
       document: { id: documentId, filename: file.name, extractionStatus: "failed" },
@@ -124,4 +124,3 @@ export async function POST(request: Request) {
 async function markFailed(supabase: NonNullable<Awaited<ReturnType<typeof createClient>>>, documentId: string) {
   await supabase.from("documents").update({ extraction_status: "failed" }).eq("id", documentId);
 }
-

@@ -54,7 +54,7 @@ export function AiExplanation({ receipts }: { receipts: ClaimReceipt[] }) {
         {lines.map((line) => <li key={`${line.receiptId}-${line.template}`}>{line.text}</li>)}
       </ul>
       <p className="mt-4 text-[10px] text-muted-foreground">
-        {loading ? "Checking explanation references…" : source === "gemini" ? "Gemini selected typed receipt references; amounts come from the engine." : "Engine-generated fallback; no AI key is required."}
+        {loading ? "Checking explanation references…" : source === "gemini" ? "The AI system selected receipt references; amounts come from the calculation engine." : "Calculation-engine explanation; no AI key is required."}
       </p>
     </Card>
   );

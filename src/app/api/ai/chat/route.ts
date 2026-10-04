@@ -13,7 +13,7 @@ export async function POST(request: Request) {
   if (!data.user) return Response.json({ error: "Sign in to ask PlanPilot." }, { status: 401 });
   const parsed = requestSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success || parsed.data.messages.at(-1)?.role !== "user") return Response.json({ error: "Enter a question." }, { status: 400 });
-  if (!process.env.GEMINI_API_KEY) return Response.json({ error: "Gemini is not configured on the server." }, { status: 503 });
+  if (!process.env.GEMINI_API_KEY) return Response.json({ error: "The AI system is not configured on the server." }, { status: 503 });
 
   try {
     const { text } = await generateText({
@@ -27,6 +27,6 @@ export async function POST(request: Request) {
     if (!text.trim() || /(?:\$|USD\s*)\d/i.test(text)) throw new Error("Unsafe answer");
     return Response.json({ reply: text.trim() });
   } catch {
-    return Response.json({ error: "Gemini could not answer right now. Your saved plan and receipts remain available." }, { status: 502 });
+    return Response.json({ error: "The AI system could not answer right now. Your saved plan and receipts remain available." }, { status: 502 });
   }
 }

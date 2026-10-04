@@ -52,7 +52,7 @@ export default function AuthLayout({
             href="/demo"
             className="mt-6 inline-flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground"
           >
-            Explore the sample workspace <ArrowUpRight size={13} />
+            Explore the public preview <ArrowUpRight size={13} />
           </Link>
         </aside>
         <section className="mx-auto w-full max-w-sm rounded-lg border border-border bg-card px-7 py-8 shadow-control sm:px-8">

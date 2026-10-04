@@ -123,12 +123,42 @@ export const financialExplanationSchema = z
           receiptId: z.uuid(),
           field: receiptFieldSchema,
         })
-        .strict(),
+      .strict(),
     ),
   })
-  .strict();
+  .strict()
+  .superRefine((value, ctx) => {
+    const fields: Record<string, string> = {
+      "patient-responsibility": "patientPayment",
+      "insurer-contribution": "finalInsurerPayment",
+      "deductible-applied": "deductibleApplied",
+      "annual-maximum-cap": "annualMaxCapReduction",
+    };
+    value.lines.forEach((line, index) => {
+      if (fields[line.template] !== line.field)
+        ctx.addIssue({
+          code: "custom",
+          path: ["lines", index, "field"],
+          message: "Explanation templates must reference their matching receipt field.",
+        });
+    });
+  });
 export type AiExtractionResult = z.infer<typeof aiExtractionResultSchema>;
 export type AiRawExtractionResult = z.infer<
   typeof aiRawExtractionResultSchema
 >;
 export type FinancialExplanation = z.infer<typeof financialExplanationSchema>;
+
+export const smartQuestionSchema = z
+  .object({
+    field: z.string(),
+    question: z.string(),
+    why: z.string(),
+    plausibleValues: z.array(z.number()),
+    currentValue: z.number(),
+    worstCaseRegretCents: centsSchema,
+    sensitivityCents: centsSchema,
+    recommendedScheduleChanges: z.boolean(),
+  })
+  .strict();
+export type SmartQuestion = z.infer<typeof smartQuestionSchema>;

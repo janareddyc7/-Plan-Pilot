@@ -45,7 +45,7 @@ const moneyFields = [
 ] as const;
 
 function source(note: string) {
-  return { source: "synthetic" as const, note };
+  return { source: "assumption" as const, note };
 }
 
 export function calculateClaims({

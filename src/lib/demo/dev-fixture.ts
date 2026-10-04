@@ -26,7 +26,15 @@ export const devPlan: DentalPlan = {
   preventiveCountsTowardMax: true,
   isConfirmed: true,
   fieldProvenance: {},
-  unknownFields: [],
+  unknownFields: [
+    {
+      field: "annualMaximumCents",
+      plausibleValues: [100000, 150000, 200000],
+      whyUnknown: "Synthetic preview keeps three illustrative annual maximum values for the value-of-information question.",
+      source: { source: "synthetic", note: "Illustrative Dev preview assumption." },
+      question: "What is your plan's annual maximum?",
+    },
+  ],
 };
 
 export const devProcedures: Procedure[] = [

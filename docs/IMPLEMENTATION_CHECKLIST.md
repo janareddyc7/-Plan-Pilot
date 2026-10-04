@@ -104,32 +104,32 @@ This checklist is the working delivery sequence for the dashboard and full produ
 
 ## Phase 9 — One Smart Question and explanations
 
-- [ ] Add `src/components/ai/one-smart-question.tsx`
-- [ ] Add `src/components/ai/ai-explanation.tsx`
-- [ ] Add `src/lib/ai/explain.ts`
-- [ ] Implement `src/app/api/ai/explain/route.ts`
-- [ ] Prioritize questions using sensitivity and regret
-- [ ] Use receipt-reference explanation templates
-- [ ] Reject unsupported monetary claims
+- [x] Add `src/components/ai/one-smart-question.tsx`
+- [x] Add `src/components/ai/ai-explanation.tsx`
+- [x] Add `src/lib/ai/explain.ts`
+- [x] Implement `src/app/api/ai/explain/route.ts`
+- [x] Prioritize questions using sensitivity and regret
+- [x] Use receipt-reference explanation templates
+- [x] Reject unsupported monetary claims
 
 ## Phase 10 — Supabase persistence
 
-- [ ] Implement authenticated plan CRUD
-- [ ] Implement procedure CRUD
-- [ ] Implement scenario save and restore
-- [ ] Implement private document metadata
-- [ ] Validate every request with Zod
-- [ ] Verify owner identity in every server route
-- [ ] Test cross-user RLS isolation
-- [ ] Keep guest demo independent of Supabase
+- [x] Implement authenticated plan CRUD
+- [x] Implement procedure CRUD
+- [x] Implement scenario save and restore
+- [x] Implement private document metadata
+- [x] Validate every request with Zod
+- [x] Verify owner identity in every server route
+- [ ] Test cross-user RLS isolation (requires two configured Supabase accounts)
+- [x] Keep guest demo independent of Supabase
 
 ## Phase 11 — Final quality pass
 
-- [ ] Run `npm run theme:check`
-- [ ] Run `npm run typecheck`
-- [ ] Run `npm run lint`
-- [ ] Run `npm run test`
-- [ ] Run `npm run build`
+- [x] Run `npm run theme:check`
+- [x] Run `npm run typecheck`
+- [x] Run `npm run lint`
+- [x] Run `npm run test`
+- [x] Run `npm run build`
 - [ ] Test signup, email confirmation, sign-in, sign-out, and recovery
 - [ ] Test Dev demo and plan/procedure edits
 - [ ] Test schedule changes and receipt inspection

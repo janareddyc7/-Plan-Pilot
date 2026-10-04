@@ -3,6 +3,7 @@ import type { ClaimReceipt, Procedure, Schedule } from "@/lib/schemas";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ProcedureCard } from "./procedure-card";
+import Link from "next/link";
 export function ProcedureTimeline({
   procedures,
   schedule,
@@ -16,6 +17,19 @@ export function ProcedureTimeline({
   onDate: (id: string, date: string) => void;
   onInspect: (receipt: ClaimReceipt) => void;
 }) {
+  if (procedures.length === 0) {
+    return (
+      <Card className="border-dashed p-6">
+        <h2 className="text-sm font-medium">No care details yet</h2>
+        <p className="mt-2 max-w-xl text-xs leading-6 text-muted-foreground">
+          Add the procedures you are considering, their estimated fees, and dentist-approved timing windows before comparing schedules.
+        </p>
+        <Link href="/app/plans" className="mt-4 inline-flex text-xs font-medium text-primary underline underline-offset-4">
+          Add care details →
+        </Link>
+      </Card>
+    );
+  }
   return (
     <Card className="overflow-hidden p-0">
       <div className="flex items-center justify-between border-b border-border px-5 py-4">

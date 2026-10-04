@@ -1,6 +1,6 @@
 # PlanPilot
 
-Dental benefits planning with a working synthetic simulator, claim receipts, schedule comparisons, Supabase authentication, private PDF upload, Gemini-assisted plan extraction, and the shared Vintage Paper theme. See docs/STATUS.md for current scope and limitations.
+Dental benefits planning with a real account workspace, deterministic claim receipts, schedule comparisons, Supabase authentication, private PDF upload, Gemini-assisted plan extraction, and the shared Vintage Paper theme. A clearly labeled public preview is available at `/demo`; signed-in workspaces never seed demo data.
 
 ## Local setup
 
@@ -12,7 +12,7 @@ cp .env.example .env.local
 npm run dev
 ```
 
-On PowerShell, use `Copy-Item .env.example .env.local`. Open http://localhost:3000. Home and /demo work without credentials; account forms clearly show setup is pending. Do not commit .env.local.
+On PowerShell, use `Copy-Item .env.example .env.local`. Open http://localhost:3000. Home and /demo work without credentials; the protected workspace loads only the signed-in user’s saved plan and procedures. Do not commit .env.local.
 
 ## Supabase setup
 
@@ -53,19 +53,22 @@ For local AI extraction, create a Google AI Studio API key and add `GEMINI_API_K
 | Route | Scaffold behavior |
 | --- | --- |
 | / | Home page |
-| /demo | Public preview shell; no calculation results |
+| /demo | Clearly labeled public preview using synthetic inputs |
 | /sign-in, /sign-up | Email/password forms |
 | /forgot-password, /reset-password | Recovery request and authenticated password update |
 | /auth/callback, /auth/confirm | PKCE and token-hash email callbacks |
 | /app | Protected dashboard shell |
 | /app/plans | Protected plan editor, private PDF upload, and extraction review |
-| /app/scenarios | Protected feature empty state |
-| /app/scenarios/[id] | Reserved; returns not found until retrieval is implemented |
+| /app/scenarios | Saved scenario list |
+| /app/scenarios/[id] | Restore or delete a saved scenario |
 | /app/settings | Account email and recovery link |
-| /api/plans, /api/scenarios | GET/POST guarded placeholders |
 | /api/documents/upload | Authenticated private PDF upload and extraction |
+| /api/documents | Authenticated private document metadata list/delete |
 | /api/ai/extract-plan | Authenticated Gemini extraction from a stored document or supplied text |
-| /api/ai/explain | Reserved for Phase 9 receipt explanation |
+| /api/ai/explain | Typed receipt-reference explanation selection |
+| /api/plans | Authenticated plan CRUD |
+| /api/procedures | Authenticated procedure CRUD |
+| /api/scenarios | Authenticated scenario save/list/delete |
 
 API status codes: 503 when Supabase or Gemini is absent; 401 for unauthenticated callers; 422 when a document cannot be safely extracted. The upload route stores PDFs only in the private, owner-scoped bucket.
 
@@ -84,7 +87,7 @@ npm run test
 npm run build
 ```
 
-Verified on October 3, 2026: dependency installation, typecheck, lint (zero warnings), all 20 Vitest tests, and production build passed. The public home page, authenticated plans editor, and extraction-review UI were checked in the browser. Live Gemini extraction requires a configured key.
+Verified on October 3, 2026: dependency installation, theme check, typecheck, lint (zero warnings), all 22 Vitest tests, and production build passed. The public home page, authenticated plans editor, and extraction-review UI were checked in the browser. Live Gemini extraction requires a configured key.
 
 Tests cover money/schema boundaries and redirect validation. Live auth, recovery email, database migration and two-account RLS/storage verification require a configured Supabase project. Check that account A cannot read/update account B's rows, reference B's documents/plans, or read B's storage paths before releasing persistence features.
 

@@ -22,12 +22,6 @@ export default async function Home() {
       <header className="mx-auto flex max-w-6xl items-center justify-between border-b border-border px-6 py-5">
         <Brand />
         <div className="flex items-center gap-5">
-          <Link
-            href="/demo"
-            className="text-xs text-muted-foreground hover:text-foreground"
-          >
-            Explore demo
-          </Link>
           <Button asChild variant="outline">
             <Link href={signedIn ? "/app" : "/sign-in"}>
               {signedIn ? "Open dashboard" : "Sign in"}
@@ -58,12 +52,9 @@ export default async function Home() {
                   <ArrowRight size={14} />
                 </Link>
               </Button>
-              <Button asChild variant="outline">
-                <Link href="/demo">Try the simulator</Link>
-              </Button>
             </div>
             <p className="mt-4 text-[11px] text-muted-foreground">
-              The sample workspace is open to everyone.
+              Your workspace starts with your own benefits summary.
             </p>
           </div>
           <div className="rounded-lg border border-border bg-card p-6 shadow-preview">

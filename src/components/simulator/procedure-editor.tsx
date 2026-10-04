@@ -1,13 +1,34 @@
 "use client";
+import { useState } from "react";
 import type { Procedure } from "@/lib/schemas";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useSimulatorStore } from "@/store/simulator-store";
-export function ProcedureEditor({ procedure }: { procedure: Procedure }) {
+export function ProcedureEditor({ procedure, planId }: { procedure: Procedure; planId: string }) {
   const update = useSimulatorStore((state) => state.updateProcedure);
   const procedures = useSimulatorStore((state) => state.procedures);
   const error = useSimulatorStore((state) => state.validationError);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState<string>();
   const dependencies = procedures.filter((item) => item.id !== procedure.id);
+  async function saveToAccount() {
+    setSaving(true);
+    setMessage(undefined);
+    try {
+      const response = await fetch("/api/procedures", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ planId, procedure }),
+      });
+      const payload = (await response.json()) as { error?: { message?: string } };
+      if (!response.ok) throw new Error(payload.error?.message ?? "Procedure could not be saved.");
+      setMessage("Saved to your account.");
+    } catch (saveError) {
+      setMessage(saveError instanceof Error ? saveError.message : "Procedure could not be saved.");
+    } finally {
+      setSaving(false);
+    }
+  }
   return (
     <Card>
       <div className="flex items-start justify-between gap-3">
@@ -140,6 +161,12 @@ export function ProcedureEditor({ procedure }: { procedure: Procedure }) {
           {error}
         </p>
       )}
+      <div className="mt-4 flex items-center justify-between gap-3 border-t border-border pt-4">
+        <p className="text-[10px] text-muted-foreground" role="status">{message}</p>
+        <button type="button" onClick={saveToAccount} disabled={saving} className="text-[11px] font-medium text-primary hover:underline disabled:opacity-50">
+          {saving ? "Saving…" : "Save procedure"}
+        </button>
+      </div>
     </Card>
   );
 }
